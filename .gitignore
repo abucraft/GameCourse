@@ -16,6 +16,7 @@
 *.toc
 *.sav
 *.tmp.pdf
+*.gz(busy)
 
 #################
 ## Eclipse
