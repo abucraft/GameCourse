@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage{xeCJK}
+\usepackage{ctex}
+\usepackage{graphicx}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\abstractname}{摘要}
+\author{杨铭 - 5130379022\\
+	李晟 - 5130379017\\
+	张云翔 - 5130379012}
+\title{HCI 课程选题提交}
+\begin{document}
+\maketitle
+\section{问题陈述}
+如何设计一个有趣的rpg游戏。
+\begin{itemize}
+	\item 需要有什么样的背景故事？
+	\item 游戏的战斗机制能有怎么样的创新？
+	\item 什么样的画面风格比较适合？
+	\item 如何设计游戏角色的成长系统？
+\end{itemize}
+\section{头脑风暴}
+\subsection{四元素混搭类型}
+\subsubsection{技术}
+\begin{itemize}
+	\item 移动平台
+	\item PC
+	\item 多人在线
+\end{itemize}
+\subsubsection{机制}
+\begin{itemize}
+	\item 立体的游戏场景
+	\item 回合制与动作结合
+	\item 游戏场景随机生成
+	\item 游戏技能相互影响
+	\item 技能随机掉落
+\end{itemize}
+\subsubsection{故事}
+\begin{itemize}
+	\item 地牢冒险
+	\item 星球大战背景
+	\item 无限轮回
+	\item 奇幻世界冒险
+\end{itemize}
+\subsubsection{美感}
+\begin{itemize}
+	\item 卡通风格
+	\item 阴森恐怖风格
+	\item 抽象风格
+\end{itemize}
+\subsection{其他游戏元素考虑}
+\begin{itemize}
+	\item 空
+\end{itemize}
+
+\section{基础设计}
+\subsection{故事}
+你是一个困在地牢中的勇士，你所知的信息有限，你需要不断冒险打倒敌人找到逃出牢笼的路径。然而最终会发现整个世界都是一个牢笼，每个人都在其中经历着轮回。
+\subsection{机制}
+游戏的每一局都是无限的轮回，打通一层地牢后，玩家可以继承上一层的状态。当玩家失败，玩家重新开始后不会继承之前的状态，但是会根据玩家以往的成就，开局角色会有额外的加成。游戏中人物的视野是有限的，移动时是按照回合制的方式，每个回合玩家和怪物根据自己的速度可以移动有限的路径。当玩家和怪物位置重叠时进入战斗状态，战斗是即时动作战斗，但处于战斗状态时，外面的回合也会根据时间进行，战斗时玩家和敌人处于一个封闭空间内，外面的敌人如果移动到相应的点位可以进入空间内和玩家进行战斗，玩家如果要出去必须杀死所有敌人或者打破空间壁。在消灭敌人或者探索地图时，玩家会有几率获得消耗品，武器和技能书。游戏中的技能分为回合技能和即时战斗技能，同类型的技能可以相互影响，产生组合技的效果。在每一层中都会有一个头目需要玩家去打败，打败后即可进入下一层。每一层的地图，敌人和道具都是随机生成的。
+\subsection{美感}
+使用卡通渲染，角色造型尽量诡异。
+\subsection{技术}
+利用unity引擎的移动端单人游戏
+\section{透镜分析}
+\subsubsection{本质体验}
+\subsubsection{惊讶}
+\subsubsection{趣味}
+\subsubsection{好奇心}
+\subsubsection{内生价值}
+\subsubsection{解题}
+\subsubsection{四类元素}
+\subsubsection{全息设计}
+
+\section{风险评估}
+\begin{table}[htbp]
+\centering
+\caption{风险清单}
+\begin{tabular}{|c|c|c|}
+	\hline
+	编号 & 风险 & 风险等级
+	\hline
+	1 & 不确定玩家是否会喜欢回合制移动和即时战斗混合的游戏机制 & 很严重
+	\hline
+	2 & 回合制移动和即时战斗混合的游戏机制的实现 & 很严重
+	\hline
+	3 & 随机生成地图的算法设计风险 & 严重
+	\hline
+	4 & 美术素材制作进度风险 & 严重
+	\hline 
+	5 & 角色技能系统和武器系统的设计实现风险 & 很严重
+	\hline
+\end{tabular}
+\end{table}
+\subsection{调整方案}
+\begin{table}[htbp]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		编号 & 调整方案
+		\hline
+		1 & 
+		\hline
+		2 & 
+		\hline
+		3 & 
+		\hline
+		4 & 
+		\hline 
+		5 & 
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsection{迭代过程}
+
+\subsection{团队分工}
+\end{document}
