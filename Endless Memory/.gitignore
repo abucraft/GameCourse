@@ -3,6 +3,7 @@
 ################
 Library/
 Temp/
+Assets/Standard Assets
 *.psd
 *.fbx
 *.blend
