@@ -48,10 +48,11 @@ namespace MemoryTrap
             Debug.Assert(doorFactory != null);
             Debug.Assert(floorFactory != null);
             Debug.Assert(roomPatterns != null);
-            Debug.Assert(wallFactory.type != typeof(Wall));
-            Debug.Assert(wallCornerFactory.type != typeof(WallCorner));
-            Debug.Assert(stepFactory.type != typeof(Step));
-            Debug.Assert(doorFactory.type != typeof(Door));
+            Debug.Assert(wallFactory.type == MapBlock.Type.wall);
+            Debug.Assert(wallCornerFactory.type == MapBlock.Type.wallCorner);
+            Debug.Assert(stepFactory.type == MapBlock.Type.step);
+            Debug.Assert(doorFactory.type == MapBlock.Type.door);
+            Debug.Assert(floorFactory.type == MapBlock.Type.floor);
             rand = new System.Random(seed);
             return base.Start();
         }
@@ -74,8 +75,8 @@ namespace MemoryTrap
             {
                 int height = rand.Next(minRoomHeight, maxRoomHeight+1);
                 int width = rand.Next(minRoomWidth, maxRoomWidth+1);
-                int initX = rand.Next(0, maps.GetLength(2));
-                int initY = rand.Next(0, maps.GetLength(1));
+                int initX = rand.Next(0, maps.GetLength(1));
+                int initY = rand.Next(0, maps.GetLength(2));
                 MapBlock.Dir[] dirArray = (MapBlock.Dir[])System.Enum.GetValues(typeof(MapBlock.Dir));
                 MapBlock.Dir dir = dirArray[rand.Next(0, dirArray.Length)];
                 RectI fArea = CreateArea(level,width, height, new Vector2I(initX, initY), dir);
@@ -87,10 +88,16 @@ namespace MemoryTrap
                     break;
                 }
                 initTimes--;
+                yield return null;
             }
-            
+            yield return null;
+            //int timeCount = 100;
             while(areaQue.Count!= 0)
             {
+                /*if(timeCount == 0)
+                {
+                    break;
+                }*/
                 UsefulArea curArea = areaQue.Dequeue();
                 //随机选择创建道路或是房间
                 string[] seletion = { "road", "room" };
@@ -104,6 +111,7 @@ namespace MemoryTrap
                             UsefulArea nuArea = new UsefulArea(nArea, 5, "road");
                             areaQue.Enqueue(nuArea);
                         }
+                        //timeCount--;
                         break;
                     case "room":
                         nArea = AddRoom(level, curArea, style);
@@ -112,6 +120,7 @@ namespace MemoryTrap
                             UsefulArea nuArea = new UsefulArea(nArea, 5, "room");
                             areaQue.Enqueue(nuArea);
                         }
+                        //timeCount--;
                         break;
                 }
                 curArea.judgeTimes--;
@@ -125,12 +134,12 @@ namespace MemoryTrap
 
         void FillRoad(int level, RectI area, string style)
         {
-            for(int y = area.top; y < area.bottom; y++)
+            for(int x = area.left; x <= area.right; x++)
             {
-                for(int x = area.left; x < area.right; x++)
+                for(int y = area.top; y <= area.bottom; y++)
                 {
                     GameObject floor = floorFactory.getObject(new Vector2((float)x, (float)y), MapBlock.Dir.front, style);
-                    maps[level, y, x] = floor.GetComponent<Floor>();
+                    maps[level, x, y] = floor.GetComponent<Floor>();
                 }
             }
         }
@@ -140,7 +149,7 @@ namespace MemoryTrap
             List<Vector2I> wallList = new List<Vector2I>();
             
             //决定路的长宽
-            int width = rand.Next(0, maxRoadSize + 1);
+            int width = rand.Next(1, maxRoadSize + 1);
             int height = rand.Next(minRoadLength, maxRoadLength + 1);
             //决定路的方向是竖直还是水平
             switch (rand.Next(0, 2))
@@ -162,7 +171,7 @@ namespace MemoryTrap
                     {
                         for (x = area.left; x <= area.right; x++)
                         {
-                            MapBlock block = maps[level, y, x];
+                            MapBlock block = maps[level, x, y];
                             if (block.type == MapBlock.Type.wall)
                             {
                                 wallList.Add(new Vector2I(x, y));
@@ -173,7 +182,7 @@ namespace MemoryTrap
                     Vector2I wallLoc = wallList[idx];
                     x = wallLoc.x;
                     y = wallLoc.y;
-                    Wall wall = (Wall)maps[level, wallLoc.y, wallLoc.x];
+                    Wall wall = (Wall)maps[level, wallLoc.x, wallLoc.y];
                     MapBlock.Dir dir = wall.direction;
 
                     //move refer to border of area
@@ -196,10 +205,10 @@ namespace MemoryTrap
                     if (nArea != null)
                     {
                         FillRoad(level, nArea, style);
-                        maps[level, wallLoc.y, wallLoc.x] = null;
+                        maps[level, wallLoc.x, wallLoc.y] = null;
                         MonoBehaviour.Destroy(wall.gameObject);
                         GameObject door = doorFactory.getObject(new Vector2((float)wallLoc.x, (float)wallLoc.y), dir, style);
-                        maps[level, wallLoc.y, wallLoc.x] = door.GetComponent<Door>();
+                        maps[level, wallLoc.x, wallLoc.y] = door.GetComponent<Door>();
                     }
                     break;
                 case "road":
@@ -210,7 +219,7 @@ namespace MemoryTrap
                     if (y == area.top|| y == area.bottom)
                     {
                         x = rand.Next(area.left, area.right + 1);
-                        if (area.width != 0)
+                        if (area.height > 1)
                         {
                             if (y == area.top)
                             {
@@ -315,85 +324,93 @@ namespace MemoryTrap
                                 break;
                         }
                     }
+
                     nArea = CreateArea(level, width, height, new Vector2I(x, y), dir);
                     if (nArea != null)
                     {
-                        MakeRoom(level, nArea, style, new Vector2I(x, y));
+                        MakeRoom(level, nArea, style, new Vector2I(x, y),dir);
                     }
                     break;
             }
             return nArea;
         }
 
-        protected void MakeRoom(int level,RectI area,string style,Vector2I doorPlc = null)
+        protected void MakeRoom(int level,RectI area,string style,Vector2I doorPlc = null,MapBlock.Dir roomDir = MapBlock.Dir.front)
         {
             int roomIdx = rand.Next(0, roomPatterns.Length);
             
-            Texture2D roomPt = new Texture2D(roomPatterns[roomIdx].width, roomPatterns[roomIdx].height);
+            Texture2D roomPt = new Texture2D(roomPatterns[roomIdx].width, roomPatterns[roomIdx].height,TextureFormat.RGBA32, false);
+            Color32[] testColor = roomPatterns[roomIdx].GetPixels32();
+            //Debug.Log(testColor[0]);
+            
             roomPt.SetPixels32(roomPatterns[roomIdx].GetPixels32());
-            roomPt.Resize(area.width, area.height);
+            RoomPatternScale.Scale(roomPt, area.width, area.height);
+            
             Color32[] colorBuffer = roomPt.GetPixels32();
             int width = roomPt.width;
             int height = roomPt.height;
-            for(int i = 0; i < width; i++)
+            for(int j = 0; j < height; j++)
             {
-                for(int j = 0; j < height; j++)
+                for(int i = 0; i < width; i++)
                 {
                     //Debug.Log("place:(" + i.ToString() + ',' + j.ToString() + ')');
-                    Color32 tmpColor = colorBuffer[i * width + height];
+                    Color32 tmpColor = colorBuffer[j * width + i];
                     //放置墙
                     if(tmpColor.Equals(Wall.editColor))
                     {
                         //判断地图块的方向
-                        MapBlock.Dir dir = blockDirection(i, j, width, height, colorBuffer);
-                        GameObject newBlock = wallFactory.getObject(new Vector2((float)(area.left + j), (float)(area.top + i)), dir, style);
-                        maps[level, area.top + j, area.left + i] = newBlock.GetComponent<Wall>();
+                        MapBlock.Dir dir = blockDirection(j, i, width, height, colorBuffer);
+                        
+                        GameObject newBlock = wallFactory.getObject(new Vector2((float)(area.left + i), (float)(area.top + j)), dir, style);
+                        maps[level, area.left + i, area.top + j] = newBlock.GetComponent<Wall>();
                     }
                     //放置墙角
                     if (tmpColor.Equals(WallCorner.editColor))
                     {
-                        MapBlock.Dir dir = blockDirection(i, j, width, height, colorBuffer);
-                        GameObject newBlock = wallCornerFactory.getObject(new Vector2((float)(area.left + j), (float)(area.top + i)), dir, style);
-                        maps[level, area.top + j, area.left + i] = newBlock.GetComponent<WallCorner>();
+                        MapBlock.Dir dir = blockDirection(j, i, width, height, colorBuffer);
+                        
+                        GameObject newBlock = wallCornerFactory.getObject(new Vector2((float)(area.left + i), (float)(area.top + j)), dir, style);
+                        maps[level, area.left + i, area.top + j] = newBlock.GetComponent<WallCorner>();
                     }
                     //放置地板
                     if (tmpColor.Equals(Floor.editColor))
                     {
-                        GameObject newBlock = floorFactory.getObject(new Vector2((float)(area.left + j), (float)(area.top + i)), MapBlock.Dir.front, style);
-                        maps[level, area.top + j, area.left + i] = newBlock.GetComponent<Floor>();
+                        GameObject newBlock = floorFactory.getObject(new Vector2((float)(area.left + i), (float)(area.top + j)), MapBlock.Dir.front, style);
+                        maps[level, area.left + i, area.top + j] = newBlock.GetComponent<Floor>();
                     }
                     //放置地板
                     if (tmpColor.Equals(Empty.editColor))
                     {
-                        GameObject newBlock = floorFactory.getObject(new Vector2((float)(area.left + j), (float)(area.top + i)), MapBlock.Dir.front, style);
-                        maps[level, area.top + j, area.left + i] = newBlock.GetComponent<Floor>();
+                        GameObject newBlock = floorFactory.getObject(new Vector2((float)(area.left + i), (float)(area.top + j)), MapBlock.Dir.front, style);
+                        maps[level, area.left + i, area.top + j] = newBlock.GetComponent<Floor>();
                     }
-                    Debug.Log("place:(" + i.ToString() + ',' + j.ToString() + ')');
-                    Debug.Log(maps[level, area.top + j, area.left + i]);
+                    //Debug.Log("place:(" + i.ToString() + ',' + j.ToString() + ')');
+                    //Debug.Log(maps[level, area.left + i, area.top + j]);
                 }
                 
             }
             //放置门
             if (doorPlc != null)
             {
-                putDoor(level, area, doorPlc,style);
+                putDoor(level, area, doorPlc, roomDir,style);
             }
             roomList.Add(area);
         }
 
 
         //判断这个块能否放置门
-        bool putDoorBlk(int level, Vector2I doorPlc,int dltY,int dltX,string style)
+        bool putDoorBlk(int level, Vector2I doorPlc,int dltX,int dltY,string style)
         {
-            if (maps[level, doorPlc.y - dltY, doorPlc.x- dltX].type == MapBlock.Type.wall
-                 && maps[level, doorPlc.y + dltY, doorPlc.x + dltX].type == MapBlock.Type.wall
-                 && maps[level, doorPlc.y, doorPlc.x].type == MapBlock.Type.wall)
+            if (maps[level, doorPlc.x - dltX, doorPlc.y - dltY]!=null 
+                && (maps[level, doorPlc.x - dltX, doorPlc.y - dltY].type == MapBlock.Type.wall || maps[level, doorPlc.x - dltX, doorPlc.y - dltY].type == MapBlock.Type.wallCorner)
+                && maps[level, doorPlc.x + dltX, doorPlc.y + dltY] != null
+                 && (maps[level, doorPlc.x + dltX, doorPlc.y + dltY].type == MapBlock.Type.wall || maps[level, doorPlc.x + dltX, doorPlc.y + dltY].type == MapBlock.Type.wallCorner))
             {
-                MapBlock oldBlock = maps[level, doorPlc.y, doorPlc.x];
+                MapBlock oldBlock = maps[level, doorPlc.x, doorPlc.y];
                 MapBlock.Dir dir = oldBlock.direction;
                 MonoBehaviour.Destroy(oldBlock.gameObject);
                 GameObject door = doorFactory.getObject(new Vector2((float)doorPlc.x, (float)doorPlc.y), dir, style);
-                maps[level, doorPlc.y, doorPlc.x] = door.GetComponent<Door>();
+                maps[level, doorPlc.x, doorPlc.y] = door.GetComponent<Door>();
                 return true;
             }
             else
@@ -402,57 +419,116 @@ namespace MemoryTrap
             }
         }
 
-        bool putDoor(int level, RectI area, Vector2I doorPlc,string style)
+        bool putDoor(int level, RectI area, Vector2I doorPlc,MapBlock.Dir roomDir,string style)
         {
+
             //在左边找到左边适合的放置地点
-            if(doorPlc.x == area.left||doorPlc.x == area.right)
-            {
-                for (int i = doorPlc.y; i > area.top; i--)
-                {
-                    if(putDoorBlk(level,new Vector2I(doorPlc.x, i), 1, 0,style))
+            switch (roomDir) {
+                case MapBlock.Dir.front:
+                    for(int x = doorPlc.x; x > area.left; x--)
                     {
-                        return true;
+                        if(x == area.right)
+                        {
+                            continue;
+                        }
+                        for(int y = area.bottom; y > area.bottom - area.height / 2; y--)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 1, 0, style))
+                                return true;
+                        }
                     }
-                }
-                for(int i = doorPlc.y + 1; i < area.bottom; i++)
-                {
-                    if (putDoorBlk(level, new Vector2I(doorPlc.x, i), 1, 0,style))
+                    for(int x = doorPlc.x; x < area.right; x++)
                     {
-                        return true;
+                        for (int y = area.bottom; y > area.bottom - area.height / 2; y--)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 1, 0, style))
+                                return true;
+                        }
                     }
-                }
+                    break;
+                case MapBlock.Dir.back:
+                    for (int x = doorPlc.x; x > area.left; x--)
+                    {
+                        if (x == area.right)
+                        {
+                            continue;
+                        }
+                        for (int y = area.top; y < area.bottom - area.height / 2; y++)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 1, 0, style))
+                                return true;
+                        }
+                    }
+                    for (int x = doorPlc.x; x < area.right; x++)
+                    {
+                        for (int y = area.top; y < area.bottom - area.height / 2; y++)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 1, 0, style))
+                                return true;
+                        }
+                    }
+                    break;
+                case MapBlock.Dir.left:
+                    for(int y = doorPlc.y; y < area.bottom; y++)
+                    {
+                        if(y == area.top)
+                        {
+                            continue;
+                        }
+                        for(int x = area.right;x>area.right - area.width / 2; x--)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 0, 1, style))
+                                return true;
+                        }
+                    }
+                    for (int y = doorPlc.y; y > area.top; y--)
+                    {
+                        for (int x = area.right; x > area.right - area.width / 2; x--)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 0, 1, style))
+                                return true;
+                        }
+                    }
+                    break;
+                case MapBlock.Dir.right:
+                    for (int y = doorPlc.y; y < area.bottom; y++)
+                    {
+                        if (y == area.top)
+                        {
+                            continue;
+                        }
+                        for (int x = area.left; x < area.right - area.width / 2; x++)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 0, 1, style))
+                                return true;
+                        }
+                    }
+                    for (int y = doorPlc.y; y > area.top; y--)
+                    {
+                        for (int x = area.left; x < area.right - area.width / 2; x++)
+                        {
+                            if (putDoorBlk(level, new Vector2I(x, y), 0, 1, style))
+                                return true;
+                        }
+                    }
+                    break;
             }
-            if(doorPlc.y == area.top || doorPlc.y == area.bottom)
-            {
-                for(int i = doorPlc.x; i > area.left; i--)
-                {
-                    if (putDoorBlk(level, new Vector2I(i, doorPlc.y), 0, 1,style))
-                    {
-                        return true;
-                    }
-                }
-                for (int i = doorPlc.x; i < area.right; i++)
-                {
-                    if (putDoorBlk(level, new Vector2I(i, doorPlc.y), 0, 1,style))
-                    {
-                        return true;
-                    }
-                }
-            }
+
+            
             return false;
         }
 
         bool CheckArea(int level, RectI area)
         {
-            if (area.top < 0 || area.bottom >= maps.GetLength(1) || area.left < 0 || area.right >= maps.GetLength(2))
+            if (area.top < 0 || area.bottom >= maps.GetLength(2) || area.left < 0 || area.right >= maps.GetLength(1))
             {
                 return false;
             }
-            for (int y = area.top; y <= area.bottom; y++)
+            for (int x = area.left; x <= area.right; x++)
             {
-                for (int x = area.left; x <= area.right; x++)
+                for (int y = area.top; y <= area.bottom; y++)
                 {
-                    if (maps[level, y, x] != null)
+                    if (maps[level, x, y] != null)
                     {
                         return false;
                     }
@@ -473,7 +549,7 @@ namespace MemoryTrap
                 case MapBlock.Dir.front:
                     refer.y--;
                     startX = refer.x - width / 2;
-                    startY = refer.y - height + 1;
+                    startY = refer.y - height +1;
                     dltX = 1;
                     break;
                 case MapBlock.Dir.back:
@@ -490,7 +566,7 @@ namespace MemoryTrap
                     break;
                 case MapBlock.Dir.left:
                     refer.x--;
-                    startX = refer.x - width + 1;
+                    startX = refer.x - width +1;
                     startY = refer.y - height / 2;
                     dltY = 1;
                     break;
@@ -498,6 +574,8 @@ namespace MemoryTrap
             //竖直和水平方向滑动area窗口
             int x = startX;
             int y = startY;
+            //Debug.Log("refer:(" + refer.x.ToString() + ',' + refer.y.ToString() + ')');
+            //Debug.Log(startX.ToString() + ',' + startY.ToString());
             while (x > refer.x - width && y > refer.y - height)
             {
                 RectI area = new RectI(x, y, width, height);
@@ -517,8 +595,8 @@ namespace MemoryTrap
                 {
                     return area;
                 }
-                x -= dltX;
-                y -= dltY;
+                x += dltX;
+                y += dltY;
             }
             return null;
         }
@@ -531,19 +609,19 @@ namespace MemoryTrap
                 {
                     return MapBlock.Dir.right;
                 }
-                if(col == width)
+                if(col == width - 1)
                 {
                     return MapBlock.Dir.back;
                 }
                 return MapBlock.Dir.front;
             }
-            if(row == height)
+            if(row == height - 1)
             {
                 if(col == 0)
                 {
                     return MapBlock.Dir.front;
                 }
-                if(col == width)
+                if(col == width-1)
                 {
                     return MapBlock.Dir.left;
                 }
@@ -551,11 +629,11 @@ namespace MemoryTrap
             }
             if(col == 0)
             {
-                return MapBlock.Dir.right;
-            }
-            if(col == width)
-            {
                 return MapBlock.Dir.left;
+            }
+            if(col == width -1 )
+            {
+                return MapBlock.Dir.right;
             }
             if(row>0 && row < height&& col > 0 && col < width)
             {

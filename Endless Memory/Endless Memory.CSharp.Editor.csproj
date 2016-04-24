@@ -130,6 +130,7 @@
     <Compile Include="Assets\Editor\CrossPlatformInput\CrossPlatformInputInitialize.cs" />
     <Compile Include="Assets\Editor\Map\MapBlockFactoryEditor.cs" />
     <Compile Include="Assets\Editor\Map\MapEditor.cs" />
+    <Compile Include="Assets\Editor\Test\DictionaryTestEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resource\Shader\ShaderTest.shader" />

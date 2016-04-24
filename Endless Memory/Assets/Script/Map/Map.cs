@@ -12,14 +12,14 @@ namespace MemoryTrap
         {
             get
             {
-                return left + width;
+                return left + width - 1;
             }
         }
         public int bottom
         {
             get
             {
-                return top + height;
+                return top + height - 1;
             }
         }
         public RectI(int x,int y,int w,int h)
@@ -114,8 +114,44 @@ namespace MemoryTrap
             StartCoroutine(generator.Start());
             generator.Start();
             
+            
+        }
+
+        public void OnDrawGizmos()
+        {
+            //DrawGizmosMap(0, 100f);
         }
         
+        public void DrawGizmosMap(int level,float offset)
+        {
+            for (int i = 0; i < maps.GetLength(1); i++)
+            {
+                for (int j = 0; j < maps.GetLength(2); j++)
+                {
+                    MapBlock bloc = maps[level, i, j];
+                    if(bloc == null)
+                    {
+                        continue;
+                    }
+                    switch (bloc.type)
+                    {
+                        case MapBlock.Type.wall:
+                            Gizmos.color = Wall.editColor;
+                            break;
+                        case MapBlock.Type.floor:
+                            Gizmos.color = Floor.editColor;
+                            break;
+                        case MapBlock.Type.wallCorner:
+                            Gizmos.color = WallCorner.editColor;
+                            break;
+                        case MapBlock.Type.door:
+                            Gizmos.color = Door.editColor;
+                            break;
+                    }
+                    Gizmos.DrawCube(new Vector3(i + offset, 0, -j), new Vector3(1, 1, 1));
+                }
+            }
+        }
         
         public void Update()
         {

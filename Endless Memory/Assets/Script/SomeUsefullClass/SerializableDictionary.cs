@@ -6,6 +6,7 @@ namespace MemoryTrap
     [System.Serializable]
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
+
         [SerializeField]
         private List<TKey> keys = new List<TKey>();
 
@@ -37,4 +38,19 @@ namespace MemoryTrap
         }
     }
 
+    [System.Serializable]
+    public class ObjectsList
+    {
+        public GameObject[] objects;
+        public ObjectsList(GameObject[] array)
+        {
+            objects = array;
+        }
+    } 
+
+    [System.Serializable]
+    public class StringObjectsDictionary : SerializableDictionary<string, ObjectsList> { }
+
+    [System.Serializable]
+    public class StringObjectDictionary : SerializableDictionary<string , GameObject> { }
 }

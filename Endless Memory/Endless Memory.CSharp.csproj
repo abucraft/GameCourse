@@ -88,7 +88,10 @@
     <Compile Include="Assets\Script\Map\Step.cs" />
     <Compile Include="Assets\Script\Map\Wall.cs" />
     <Compile Include="Assets\Script\Map\WallCorner.cs" />
+    <Compile Include="Assets\Script\SomeUsefullClass\RoomPatternScale.cs" />
     <Compile Include="Assets\Script\SomeUsefullClass\SerializableDictionary.cs" />
+    <Compile Include="Assets\Script\SomeUsefullClass\TextureScale.cs" />
+    <Compile Include="Assets\Script\Test\DictionaryTest.cs" />
     <Compile Include="Assets\Script\Thread\AsyncJob.cs" />
     <Compile Include="Assets\Script\Thread\ThreadJob.cs" />
   </ItemGroup>
