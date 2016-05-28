@@ -8,18 +8,23 @@ namespace MemoryTrap
     public class MapBlockFactoryEditor : Editor
     {
         public bool foldObjects = true;
+        SerializedProperty objCollection;
+        void OnEnable()
+        {
+            objCollection = serializedObject.FindProperty("objCollection");
+        }
+         
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            
-            MapBlockFactory factory = (MapBlockFactory)target;
-            
-            
+            serializedObject.Update();
+
             foldObjects = EditorGUILayout.Foldout(foldObjects, "objects");
             if (foldObjects)
             {
                 EditorGUI.indentLevel++;
-                StringObjectsDictionary dict = factory.objCollection;
+                StringObjectsDictionary dict = ((MapBlockFactory)target).objCollection;
+                
                 StringObjectsDictionary.KeyCollection keys = dict.Keys;
                 List<string> removeList = new List<string>();
                 List<string> nameList = new List<string>();
@@ -86,8 +91,11 @@ namespace MemoryTrap
                         dict.Add("unnamed", new ObjectsList(array));
                     }
                 }
+                serializedObject.CopyFromSerializedProperty(new SerializedObject(target).FindProperty("objCollection"));
                 EditorGUI.indentLevel--;
+
             }
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }

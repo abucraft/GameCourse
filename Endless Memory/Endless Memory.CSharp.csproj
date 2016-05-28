@@ -78,6 +78,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Script\Charactor\TurnBaseCharactor.cs" />
+    <Compile Include="Assets\Script\Manager\AppManager.cs" />
+    <Compile Include="Assets\Script\Manager\Battle.cs" />
+    <Compile Include="Assets\Script\Manager\GameManager.cs" />
     <Compile Include="Assets\Script\Map\Door.cs" />
     <Compile Include="Assets\Script\Map\Empty.cs" />
     <Compile Include="Assets\Script\Map\Floor.cs" />
