@@ -4,22 +4,25 @@ namespace MemoryTrap
 {
     public class Door : MapBlock
     {
-
+        private bool opened = false;
         public static Color32 editColor = new Color32(0, 0, 255, 255);
         public Door()
         {
             type = Type.door;
         }
-        // Use this for initialization
-        void Start()
-        {
 
+        public bool Opened
+        {
+            get
+            {
+                return opened;
+            }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
+        public virtual void Open() {
+            opened = true;
         }
+
+        
     }
 }

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
+using TinyJSON;
 namespace MemoryTrap
 {
     public class RectI
@@ -66,54 +68,15 @@ namespace MemoryTrap
 
     public class Map : MonoBehaviour
     {
-        [Range(1, 100000)]
-        public int width = 1;
-        [Range(1, 100000)]
-        public int length = 1;
-        [Range(1,10)]
-        public int totalLevel = 1;
-        MapBlock[,,] maps;
-        [Range(3, 200)]
-        public int minRoomHeight = 3;
-        [Range(3, 200)]
-        public int maxRoomHeight = 20;
-        [Range(3, 200)]
-        public int minRoomWidth = 3;
-        [Range(3, 200)]
-        public int maxRoomWidth = 20;
-        [Range(2, 100)]
-        public int maxRoadSize = 4;
-        public MapBlockFactory wallFactory;
-        public MapBlockFactory stepFactory;
-        public MapBlockFactory doorFactory;
-        public MapBlockFactory floorFactory;
-        public MapBlockFactory wallCornerFactory;
-        
-        //自定义pattern显示
-        [HideInInspector]
-        public Texture2D[] roomPatterns;
-
-        MapGenerator generator;
+        protected Vector2 _location = new Vector2(0,0);
+        public MapManager manager;
+        public MapBlock[,] map;
+        public int level = 0;
+        public string style = "normal";
+        public List<RectI> roomList = new List<RectI>();
+        RectI curArea;
         public void Start()
         {
-            generator = new MapGenerator();
-            maps = new MapBlock[totalLevel, width, length];
-            //初始化生成器
-            generator.maps = maps;
-            generator.maxRoadSize = maxRoadSize;
-            generator.minRoomHeight = minRoomHeight;
-            generator.maxRoomHeight = maxRoomHeight;
-            generator.minRoomWidth = minRoomWidth;
-            generator.maxRoomWidth = maxRoomWidth;
-            generator.wallFactory = wallFactory;
-            generator.stepFactory = stepFactory;
-            generator.doorFactory = doorFactory;
-            generator.floorFactory = floorFactory;
-            generator.wallCornerFactory = wallCornerFactory;
-            generator.roomPatterns = roomPatterns;
-            StartCoroutine(generator.Start());
-            generator.Start();
-            
             
         }
 
@@ -124,11 +87,11 @@ namespace MemoryTrap
         
         public void DrawGizmosMap(int level,float offset)
         {
-            for (int i = 0; i < maps.GetLength(1); i++)
+            for (int i = 0; i < map.GetLength(0); i++)
             {
-                for (int j = 0; j < maps.GetLength(2); j++)
+                for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    MapBlock bloc = maps[level, i, j];
+                    MapBlock bloc = map[i, j];
                     if(bloc == null)
                     {
                         continue;
@@ -153,6 +116,84 @@ namespace MemoryTrap
             }
         }
         
+        public Vector2 location
+        {
+            get { return _location; }
+            set
+            {
+                _location = value;
+                Vector3 localpos = transform.localPosition;
+                localpos.x = _location.x;
+                localpos.z = _location.y;
+                localpos.y = 0;
+                transform.localPosition = localpos;
+            }
+        }
+
+        public Node Serialize()
+        {
+            Node cur = Node.NewTable();
+            cur["location"] = Node.NewTable();
+            cur["location"]["x"] = Node.NewNumber(_location.x);
+            cur["location"]["y"] = Node.NewNumber(_location.y);
+            cur["level"] = Node.NewInt(level);
+            cur["style"] = Node.NewString(style);
+            cur["roomList"] = Node.NewArray();
+            for(int i = 0; i < roomList.Count; i++)
+            {
+                Node tmp = Node.NewTable();
+                RectI tmpR = roomList[i];
+                tmp["left"] = tmpR.left;
+                tmp["top"] = tmpR.top;
+                tmp["width"] = tmpR.width;
+                tmp["height"] = tmpR.height;
+                cur["roomList"][i] = tmp;
+            }
+            cur["map"] = Node.NewArray();
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                cur["map"][x] = Node.NewArray();
+                for(int y = 0; y < map.GetLength(1); y++)
+                {
+                    cur["map"][x][y] = map[x, y].Serialize();
+                }
+            }
+            
+            return cur;
+        }
+
+        public void DeSerialize(Node node)
+        {
+
+        }
+        
+        public void DisableAll()
+        {
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                for(int y = 0; y < map.GetLength(1); y++)
+                {
+                    map[x, y].gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public IEnumerator ZoomIn(int frames)
+        {
+            yield return null;
+        }
+
+
+        public IEnumerator ZoomOut(int frames)
+        {
+            yield return null;
+        }
+
+        public void ShowArea(RectI area)
+        {
+
+        }
+
         public void Update()
         {
             
