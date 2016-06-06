@@ -69,30 +69,31 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Script\Charactor\TurnBaseCharactor.cs" />
-    <Compile Include="Assets\Script\Manager\AppManager.cs" />
-    <Compile Include="Assets\Script\Manager\Battle.cs" />
-    <Compile Include="Assets\Script\Manager\GameManager.cs" />
-    <Compile Include="Assets\Script\Map\Door.cs" />
-    <Compile Include="Assets\Script\Map\DownStair.cs" />
-    <Compile Include="Assets\Script\Map\Empty.cs" />
-    <Compile Include="Assets\Script\Map\Floor.cs" />
-    <Compile Include="Assets\Script\Map\Map.cs" />
-    <Compile Include="Assets\Script\Map\MapBlock.cs" />
-    <Compile Include="Assets\Script\Map\MapBlockFactory.cs" />
-    <Compile Include="Assets\Script\Map\MapGenerator.cs" />
-    <Compile Include="Assets\Script\Map\MapManager.cs" />
-    <Compile Include="Assets\Script\Map\RoomPattern.cs" />
-    <Compile Include="Assets\Script\Map\UpStair.cs" />
-    <Compile Include="Assets\Script\Map\Wall.cs" />
-    <Compile Include="Assets\Script\Map\WallCorner.cs" />
-    <Compile Include="Assets\Script\SomeUsefullClass\RoomPatternScale.cs" />
-    <Compile Include="Assets\Script\SomeUsefullClass\SerializableDictionary.cs" />
-    <Compile Include="Assets\Script\SomeUsefullClass\TextureScale.cs" />
-    <Compile Include="Assets\Script\SomeUsefullClass\TinyJSON.cs" />
-    <Compile Include="Assets\Script\Test\DictionaryTest.cs" />
-    <Compile Include="Assets\Script\Thread\AsyncJob.cs" />
-    <Compile Include="Assets\Script\Thread\ThreadJob.cs" />
+    <Compile Include="Assets\Resource\Script\Charactor\TurnBaseCharactor.cs" />
+    <Compile Include="Assets\Resource\Script\Charactor\TurnBaseWalk.cs" />
+    <Compile Include="Assets\Resource\Script\Manager\AppManager.cs" />
+    <Compile Include="Assets\Resource\Script\Manager\Battle.cs" />
+    <Compile Include="Assets\Resource\Script\Manager\GameManager.cs" />
+    <Compile Include="Assets\Resource\Script\Map\Door.cs" />
+    <Compile Include="Assets\Resource\Script\Map\DownStair.cs" />
+    <Compile Include="Assets\Resource\Script\Map\Empty.cs" />
+    <Compile Include="Assets\Resource\Script\Map\Floor.cs" />
+    <Compile Include="Assets\Resource\Script\Map\Map.cs" />
+    <Compile Include="Assets\Resource\Script\Map\MapBlock.cs" />
+    <Compile Include="Assets\Resource\Script\Map\MapBlockFactory.cs" />
+    <Compile Include="Assets\Resource\Script\Map\MapGenerator.cs" />
+    <Compile Include="Assets\Resource\Script\Map\MapManager.cs" />
+    <Compile Include="Assets\Resource\Script\Map\RoomPattern.cs" />
+    <Compile Include="Assets\Resource\Script\Map\UpStair.cs" />
+    <Compile Include="Assets\Resource\Script\Map\Wall.cs" />
+    <Compile Include="Assets\Resource\Script\Map\WallCorner.cs" />
+    <Compile Include="Assets\Resource\Script\SomeUsefullClass\RoomPatternScale.cs" />
+    <Compile Include="Assets\Resource\Script\SomeUsefullClass\SerializableDictionary.cs" />
+    <Compile Include="Assets\Resource\Script\SomeUsefullClass\TextureScale.cs" />
+    <Compile Include="Assets\Resource\Script\SomeUsefullClass\TinyJSON.cs" />
+    <Compile Include="Assets\Resource\Script\Test\DictionaryTest.cs" />
+    <Compile Include="Assets\Resource\Script\Thread\AsyncJob.cs" />
+    <Compile Include="Assets\Resource\Script\Thread\ThreadJob.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resource\Shader\ShaderTest.shader" />

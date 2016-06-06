@@ -5,29 +5,19 @@ using System.Collections.Generic;
 namespace MemoryTrap
 {
     //需要自行获取地图，可以修改AppManager和GameManager
-    public abstract class TurnBaseCharactor : MonoBehaviour
+    public abstract class TurnBaseWalk : MonoBehaviour
     {
-        public Vector2 getPos()
-        {
-            // 假定Pos为（10，10），暂时没有charactor的信息
-            return new Vector2(10, 10);
-        }
-        public int getStep()
-        {
-            // 假定Step为5，暂时没有charactor的信息
-            return 5;
-        }
-
         public Map getMap()
         {
             GameObject tmp = GameObject.Find("GameObject");
             return tmp.GetComponent<Map>();
         }
+        protected Dictionary<Vector2, Vector2> reachableArea;
 
         //get where the charactor can go
-        public abstract Dictionary<Vector2, Vector2> getReachableArea();
+        public abstract Dictionary<Vector2, Vector2> getReachableArea(Vector2 startPos, int step);
         //get the path to a position
-        public abstract List<Vector2> getPathTo(Vector2 endPos);
+        public abstract List<Vector2> getPathTo(Vector2 startPos, Vector2 endPos, int step);
         // Use this for initialization
         void Start()
         {
@@ -41,33 +31,32 @@ namespace MemoryTrap
         }
     }
     
-    public class TurnFlyCharactor : TurnBaseCharactor
+    public class TurnFlyCharactor : TurnBaseWalk
     {
-        override public Dictionary<Vector2, Vector2> getReachableArea()
+        override public Dictionary<Vector2, Vector2> getReachableArea(Vector2 startPos, int step)
         {
             return new Dictionary<Vector2, Vector2>();
         }
 
-        override public List<Vector2> getPathTo(Vector2 endPos)
+        override public List<Vector2> getPathTo(Vector2 startPos, Vector2 endPos, int step)
         {
             return new List<Vector2>();
         }
     }
 
-    public class TurnLandCharactor : TurnBaseCharactor
+    public class TurnLandCharactor : TurnBaseWalk
     {
-        override public Dictionary<Vector2, Vector2> getReachableArea()
+        override public Dictionary<Vector2, Vector2> getReachableArea(Vector2 startPos,int step)
         {
             Dictionary<Vector2, Vector2> tmp = new Dictionary<Vector2, Vector2>();
             Queue<KeyValuePair<Vector2, int>> bfs = new Queue<KeyValuePair<Vector2, int>>();
             HashSet<Vector2> reached = new HashSet<Vector2>();
 
-            bfs.Enqueue(new KeyValuePair<Vector2, int>(getPos(), 0));
-            reached.Add(getPos());
-            tmp.Add(getPos(), getPos());
+            bfs.Enqueue(new KeyValuePair<Vector2, int>(startPos, 0));
+            reached.Add(startPos);
+            tmp.Add(startPos, startPos);
 
             Map map = getMap();
-            int step = getStep();
 
             while (bfs.Count != 0)
             {
@@ -107,12 +96,13 @@ namespace MemoryTrap
                         }
                 }
             }
+            reachableArea = tmp;
             return tmp;
         }
 
-        override public List<Vector2> getPathTo(Vector2 endPos)
+        override public List<Vector2> getPathTo(Vector2 startPos, Vector2 endPos, int step)
         {
-            Dictionary<Vector2, Vector2> reachableArea = getReachableArea();
+            //Dictionary<Vector2, Vector2> reachableArea = getReachableArea(startPos,step);
             List<Vector2> path = new List<Vector2>();
 
             Vector2 nowPos = endPos;

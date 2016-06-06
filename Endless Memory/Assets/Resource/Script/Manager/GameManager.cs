@@ -19,8 +19,6 @@ namespace MemoryTrap
     }
     public class GameManager : MonoBehaviour
     {
-        TurnBaseCharactor mainCharactor;
-        TurnBaseCharactor curActingCharactor;
         Battle curBattle;
         void TakeTurn()
         {
