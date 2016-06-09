@@ -180,12 +180,14 @@ namespace MemoryTrap
                     //move refer to border of area
                     switch (dir)
                     {
+                        //这里front的wall是处于area 的bottom处
                         case MapBlock.Dir.front:
-                            y = area.top;
-                            break;
-                        case MapBlock.Dir.back:
                             y = area.bottom;
                             break;
+                        case MapBlock.Dir.back:
+                            y = area.top;
+                            break;
+                        
                         case MapBlock.Dir.right:
                             x = area.right;
                             break;
@@ -339,6 +341,7 @@ namespace MemoryTrap
                 {
                     //Debug.Log("place:(" + i.ToString() + ',' + j.ToString() + ')');
                     Color32 tmpColor = colorBuffer[j * width + i];
+                    //这里map的z方向和roomPattern的相反
                     //放置墙
                     if(tmpColor.Equals(Wall.editColor))
                     {
@@ -347,27 +350,29 @@ namespace MemoryTrap
                         //Debug.Log("createWall");
                         Wall wall = new Wall();
                         wall.direction = dir;
-                        map.map[area.left + i, area.top + j] = wall;
+                        map.map[area.left + i, area.bottom - j] = wall;
                     }
                     //放置墙角
                     if (tmpColor.Equals(WallCorner.editColor))
                     {
+                        
                         MapBlock.Dir dir = blockDirection(j, i, width, height, colorBuffer);
                         WallCorner wc = new WallCorner();
                         wc.direction = dir;
-                        map.map[area.left + i, area.top + j] = wc;
+                        map.map[area.left + i, area.bottom - j] = wc;
+                        Debug.Log("place wall corner:" +new Vector2I(area.left+i,area.top+j).ToString()+" dir:" + dir.ToString());
                     }
                     //放置地板
                     if (tmpColor.Equals(Floor.editColor))
                     {
                         Floor floor = new Floor();
-                        map.map[area.left + i, area.top + j] = floor;
+                        map.map[area.left + i, area.bottom - j] = floor;
                     }
                     //放置地板
                     if (tmpColor.Equals(Empty.editColor))
                     {
                         Empty empty = new Empty();
-                        map.map[area.left + i, area.top + j] = empty;
+                        map.map[area.left + i, area.bottom - j] = empty;
                     }
                     //Debug.Log("place:(" + i.ToString() + ',' + j.ToString() + ')');
                     //Debug.Log(maps[level, area.left + i, area.top + j]);
@@ -586,145 +591,122 @@ namespace MemoryTrap
             return null;
         }
 
-        MapBlock.Dir blockDirection(int row,int col,int width,int height,Color32[] colorBuffer)
+        bool Filled(int row,int col,int width,int height,Color32[] colorBuffer)
         {
-            if (row == 0)
+            if(row<0|| row >= height || col < 0 || col >= width)
             {
-                if(col == 0)
-                {
-                    return MapBlock.Dir.right;
-                }
-                if(col == width - 1)
-                {
-                    return MapBlock.Dir.back;
-                }
-                return MapBlock.Dir.front;
+                return false;
             }
-            if(row == height - 1)
+            else
             {
-                if(col == 0)
-                {
-                    return MapBlock.Dir.front;
-                }
-                if(col == width-1)
-                {
-                    return MapBlock.Dir.left;
-                }
-                return MapBlock.Dir.back;
+                return !colorBuffer[row * width + col].Equals(Empty.editColor);
             }
-            if(col == 0)
+        }
+
+        MapBlock.Dir blockDirection(int row, int col, int width, int height, Color32[] colorBuffer)
+        {
+
+            //识别pattern中block的方向
+            /*
+             * 0       up      0
+             * left    1       right
+             * 0       down    0
+             */
+            bool up = false;
+            bool down = false;
+            bool right = false;
+            bool left = false;
+            if (Filled((row - 1) ,col, width ,height,colorBuffer))
+            {
+                up = true;
+            }
+            if (Filled((row + 1), col, width, height, colorBuffer))
+            {
+                down = true;
+            }
+            if (Filled(row, col - 1, width, height, colorBuffer))
+            {
+                left = true;
+            }
+            if (Filled(row, col + 1, width, height, colorBuffer))
+            {
+                right = true;
+            }
+            /*
+             * 0    1   0
+             * 0    1   1
+             * 0    1   0
+             */
+            if (up && down && right && !left)
             {
                 return MapBlock.Dir.left;
             }
-            if(col == width -1 )
+            /*
+             * 0    1   0
+             * 1    1   0
+             * 0    1   0
+             */
+            if (up && down && left && !right)
             {
                 return MapBlock.Dir.right;
             }
-            if(row>0 && row < height&& col > 0 && col < width)
+            /*
+             * 0    1   0
+             * 1    1   1
+             * 0    0   0
+             */
+            if (left && right && up && !down)
             {
-                //识别pattern中block的方向
-                /*
-                 * 0       up      0
-                 * left    1       right
-                 * 0       down    0
-                 */
-                bool up = false;
-                bool down = false;
-                bool right = false;
-                bool left = false;
-                if(!colorBuffer[(row - 1) * width + col].Equals(Empty.editColor))
-                {
-                    up = true;
-                }
-                if(!colorBuffer[(row + 1) * width + col].Equals(Empty.editColor))
-                {
-                    down = true;
-                }
-                if (!colorBuffer[row * width + col - 1].Equals(Empty.editColor))
-                {
-                    left = true;
-                }
-                if (!colorBuffer[row * width + col + 1].Equals(Empty.editColor))
-                {
-                    right = true;
-                }
-                /*
-                 * 0    1   0
-                 * 0    1   1
-                 * 0    1   0
-                 */
-                if (up && down && right&&!left)
-                {
-                    return MapBlock.Dir.right;
-                }
-                /*
-                 * 0    1   0
-                 * 1    1   0
-                 * 0    1   0
-                 */
-                if (up &&down && left && !right)
-                {
-                    return MapBlock.Dir.left;
-                }
-                /*
-                 * 0    1   0
-                 * 1    1   1
-                 * 0    0   0
-                 */
-                if (left && right && up && !down)
-                {
-                    return MapBlock.Dir.front;
-                }
-                /*
-                 * 0    0   0
-                 * 1    1   1
-                 * 0    1   0
-                 */
-                if (left && right && down && !up)
-                {
-                    return MapBlock.Dir.back;
-                }
-                /*
-                 * 0    1   0
-                 * 1    1   0
-                 * 0    0   0
-                 */
-                if (left && up && !right && !down)
-                {
-                    return MapBlock.Dir.left;
-                }
-                /*
-                 * 0    0   0
-                 * 1    1   0
-                 * 0    1   0
-                 */
-                if (left && down && !up && !right)
-                {
-                    return MapBlock.Dir.back;
-                }
-                /*
-                 * 0    0   0
-                 * 0    1   1
-                 * 0    1   0
-                 */
-                if (right && down && !up && !left)
-                {
-                    return MapBlock.Dir.right;
-                }
-                /*
-                 * 0    1   0
-                 * 0    1   1
-                 * 0    0   0
-                 */
-                if (right && up && !down && !left)
-                {
-                    return MapBlock.Dir.front;
-                }
+                return MapBlock.Dir.back;
+            }
+            /*
+             * 0    0   0
+             * 1    1   1
+             * 0    1   0
+             */
+            if (left && right && down && !up)
+            {
+                return MapBlock.Dir.front;
+            }
+            /*
+             * 0    1   0
+             * 1    1   0
+             * 0    0   0
+             */
+            if (left && up && !right && !down)
+            {
+                return MapBlock.Dir.left;
+            }
+            /*
+             * 0    0   0
+             * 1    1   0
+             * 0    1   0
+             */
+            if (left && down && !up && !right)
+            {
+                return MapBlock.Dir.back;
+            }
+            /*
+             * 0    0   0
+             * 0    1   1
+             * 0    1   0
+             */
+            if (right && down && !up && !left)
+            {
+                return MapBlock.Dir.right;
+            }
+            /*
+             * 0    1   0
+             * 0    1   1
+             * 0    0   0
+             */
+            if (right && up && !down && !left)
+            {
                 return MapBlock.Dir.front;
             }
             return MapBlock.Dir.front;
-        }
 
+        }
 
     }
 }

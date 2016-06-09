@@ -51,10 +51,21 @@ namespace MemoryTrap
         public Texture2D[] roomPatterns;
 
         protected RoomPattern[] _roomPatterns;
+
+        public static MapManager instance;
         
         // Use this for initialization
         void Start()
         {
+            //已经有了这个单例，销毁
+            if(instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }else
+            {
+                instance = this;
+            }
             Debug.Assert(wallFactory != null);
             Debug.Assert(emptyFactory != null);
             Debug.Assert(upStairFactory != null);
@@ -92,6 +103,7 @@ namespace MemoryTrap
                     int length = rand.Next(minLength, maxLength);
                     string style = styles[rand.Next(0, styles.Length)];
                     gens[i] = GenerateMap(i, width, length, style);
+                    maps[i].level = i;
                 }
                 while (true)
                 {
@@ -219,10 +231,53 @@ namespace MemoryTrap
             return curNode;
         }
 
-        public void LoadMap(int level)
+        public void DeSerialize(Node node) {
+            List<Node> mapNodes = (List<Node>)node;
+            maps = new Map[mapNodes.Count];
+            for(int i = 0; i < mapNodes.Count; i++)
+            {
+                maps[i].DeSerialize(mapNodes[i]);
+            }
+        }
+
+        public static void LogMapBlock(Vector3 loc)
+        {
+            int level = (int)loc.y;
+            Vector2 pos = new Vector2(loc.x, loc.z);
+            Map map = instance.maps[level];
+            pos -= map.location;
+            Vector2I mapLoc = new Vector2I((int)pos.x, (int)pos.y);
+            MapBlock blk = map.map[(int)pos.x, (int)pos.y];
+            Debug.Log("location is:" + loc.ToString());
+            Debug.Log("map loc:" + mapLoc.ToString());
+            Debug.Log("type is:" + blk.type.ToString());
+            Debug.Log("dir is:"+blk.direction.ToString());
+        }
+
+        //显示所有地图块
+        public void ShowAllMap(bool show)
+        {
+            Debug.Log(show);
+            if (show)
+            {
+                for (int i = 0; i < maps.Length; i++)
+                {
+                    maps[i].ShowAll();
+                }
+            }
+            else
+            {
+                for(int i = 0; i < maps.Length; i++)
+                {
+                    maps[i].DisableAll();
+                }
+            }
+        }
+
+        /*public void LoadMap(int level)
         {
 
-        }
+        }*/
         // Update is called once per frame
         void Update()
         {

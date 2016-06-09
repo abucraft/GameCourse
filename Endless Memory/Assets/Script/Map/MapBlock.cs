@@ -32,6 +32,7 @@ namespace MemoryTrap
         protected Dir _direction = Dir.front;
         public Type type = Type.empty;
         public int idx = 0;
+        public string style = "normal";
         public Dir direction
         {
             get { return _direction; }
@@ -87,6 +88,11 @@ namespace MemoryTrap
             }
         }
 
+        //需要在具体的block中实现
+        public virtual void CreateObject(Vector2 pos,Transform parent)
+        {
+            return;
+        }
 
         public virtual Node Serialize()
         {
@@ -94,6 +100,7 @@ namespace MemoryTrap
             cur["type"] = Node.NewInt((int)type);
             cur["dir"] = Node.NewInt((int)direction);
             cur["idx"] = Node.NewInt(idx);
+            cur["style"] = Node.NewString(style);
             return cur;
         }
 
@@ -102,6 +109,15 @@ namespace MemoryTrap
             type = (Type)(int)node["type"];
             _direction = (Dir)(int)node["dir"];
             idx = (int)node["idx"];
+            style = (string)node["style"];
+        }
+
+        ~MapBlock()
+        {
+            if (_gameObject != null)
+            {
+                MonoBehaviour.Destroy(_gameObject);
+            }
         }
     }
 }
