@@ -3,9 +3,9 @@ using UnityEditor;
 using System.Collections;
 namespace MemoryTrap
 {
-    [CustomEditor(typeof(Map))]
+    [CustomEditor(typeof(MapManager))]
     [ExecuteInEditMode]
-    public class MapEditor : Editor
+    public class MapManagerEditor : Editor
     {
         int ptLength = 0;
         bool ptFold = true;
@@ -13,7 +13,7 @@ namespace MemoryTrap
         {
             base.OnInspectorGUI();
             {
-                Map map = (Map)target;
+                MapManager map = (MapManager)target;
                 ptLength = map.roomPatterns.Length;
                 ptFold = EditorGUILayout.Foldout(ptFold, "Room Patterns");
                 if (ptFold)

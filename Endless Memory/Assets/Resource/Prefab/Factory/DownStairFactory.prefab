@@ -1,51 +1,51 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &185268
+--- !u!1 &113076
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 4
   m_Component:
-  - 4: {fileID: 407760}
-  - 114: {fileID: 11480464}
+  - 4: {fileID: 487268}
+  - 114: {fileID: 11410798}
   m_Layer: 0
-  m_Name: StepFactory
+  m_Name: DownStairFactory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &407760
+--- !u!4 &487268
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 185268}
+  m_GameObject: {fileID: 113076}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.0393244, y: -2.3178668, z: 3.4293118}
+  m_LocalPosition: {x: 133.68367, y: 3.575798, z: -59.867702}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!114 &11480464
+--- !u!114 &11410798
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 185268}
+  m_GameObject: {fileID: 113076}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2eeea9c4143c75243afcb578d0447c2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 4
+  type: 5
   objCollection:
     keys:
     - normal
     values:
     - objects:
-      - {fileID: 156696, guid: 9374407dd8f2e4b448e0a7e6c07f0501, type: 2}
+      - {fileID: 172558, guid: 2a595f4368d37454a82a7b63b27c7fdb, type: 2}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
@@ -55,5 +55,5 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 185268}
+  m_RootGameObject: {fileID: 113076}
   m_IsPrefabParent: 1
