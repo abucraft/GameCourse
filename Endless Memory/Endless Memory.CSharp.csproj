@@ -75,6 +75,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Script\Charactor\Monster.cs" />
     <Compile Include="Assets\Script\Charactor\TurnBaseCharactor.cs" />
     <Compile Include="Assets\Script\Manager\AppManager.cs" />
     <Compile Include="Assets\Script\Manager\Battle.cs" />
