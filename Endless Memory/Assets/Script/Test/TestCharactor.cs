@@ -32,12 +32,36 @@ namespace MemoryTrap
 
             public void SetPosition()
             {
-
+                Map map = MapManager.instance.maps[curLevel];
+                Vector2 pos = map.location;
+                pos += new Vector2(mapPos.x, mapPos.y);
+                transform.position = new Vector3(pos.x, curLevel, pos.y);
             }
 
             public void Move(Vector2I target)
             {
 
+            }
+
+            //获取到视野内的方块区域
+            public Rect GetCameraRect()
+            {
+                Ray leftTopR = Camera.main.ScreenPointToRay(new Vector2(0, 0));
+                Ray rightTopR = Camera.main.ScreenPointToRay(new Vector2(Screen.width, 0));
+                Ray leftBtmR = Camera.main.ScreenPointToRay(new Vector2(0, Screen.height));
+                Ray rightBtmR = Camera.main.ScreenPointToRay(new Vector2(Screen.width, Screen.height));
+                float fieldOfView = Camera.main.fieldOfView;
+                float height = Camera.main.transform.position.y - curLevel;
+                float rotateX = Camera.main.transform.rotation.x;
+                float angle = rotateX - fieldOfView / 2;
+                float length = height / Mathf.Sin(angle);
+                Vector3 leftTop = leftTopR.GetPoint(length);
+                Vector3 rightTop = rightTopR.GetPoint(length);
+                Vector3 leftBtm = leftBtmR.GetPoint(length);
+                Vector3 rightBtm = rightBtmR.GetPoint(length);
+                float tmpWidth = rightTop.x - leftTop.x;
+                float tmpHeight = leftTop.z - leftBtm.z;
+                return new Rect(leftBtm.x, leftBtm.z, tmpWidth, tmpHeight);
             }
 
             public void ResetPos()
