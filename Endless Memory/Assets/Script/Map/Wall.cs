@@ -9,16 +9,19 @@ namespace MemoryTrap
         {
             type = Type.wall;
         }
-        // Use this for initialization
-        void Start()
+        public override void CreateObject(Vector2 pos, Transform parent)
         {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
+            MapManager mpm = MapManager.instance;
+            if (mpm != null)
+            {
+                MapBlockFactory wallFactory = mpm.wallFactory;
+                if (wallFactory != null)
+                {
+                    gameObject = wallFactory.getObject(style);
+                    gameObject.transform.parent = parent;
+                    gameObject.transform.localPosition = new Vector3(pos.x, 0, pos.y);
+                }
+            }
         }
     }
 }

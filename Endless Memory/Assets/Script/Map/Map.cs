@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
+using TinyJSON;
 namespace MemoryTrap
 {
     public class RectI
@@ -28,6 +30,11 @@ namespace MemoryTrap
             top = y;
             width = w;
             height = h;
+        }
+
+        public bool InSide(int x,int y)
+        {
+            return x >= left && x <= right && y >= top && y <= bottom;
         }
     }
 
@@ -62,58 +69,26 @@ namespace MemoryTrap
             _x = x;
             _y = y;
         }
+        public bool InArea(RectI rect)
+        {
+            return _x >= rect.left && _x <= rect.right && _y >= rect.top && _y <= rect.bottom;
+        }
+        public override string ToString()
+        {
+            return "(" + _x.ToString() + ',' + _y.ToString() + ')';
+        }
     }
 
     public class Map : MonoBehaviour
     {
-        [Range(1, 100000)]
-        public int width = 1;
-        [Range(1, 100000)]
-        public int length = 1;
-        [Range(1,10)]
-        public int totalLevel = 1;
-        MapBlock[,,] maps;
-        [Range(3, 200)]
-        public int minRoomHeight = 3;
-        [Range(3, 200)]
-        public int maxRoomHeight = 20;
-        [Range(3, 200)]
-        public int minRoomWidth = 3;
-        [Range(3, 200)]
-        public int maxRoomWidth = 20;
-        [Range(2, 100)]
-        public int maxRoadSize = 4;
-        public MapBlockFactory wallFactory;
-        public MapBlockFactory stepFactory;
-        public MapBlockFactory doorFactory;
-        public MapBlockFactory floorFactory;
-        public MapBlockFactory wallCornerFactory;
-        
-        //自定义pattern显示
-        [HideInInspector]
-        public Texture2D[] roomPatterns;
-
-        MapGenerator generator;
+        protected Vector2 _location = new Vector2(0,0);
+        public MapBlock[,] map;
+        public int level = 0;
+        public string style = "normal";
+        public List<RectI> roomList = new List<RectI>();
+        RectI curArea;
         public void Start()
         {
-            generator = new MapGenerator();
-            maps = new MapBlock[totalLevel, width, length];
-            //初始化生成器
-            generator.maps = maps;
-            generator.maxRoadSize = maxRoadSize;
-            generator.minRoomHeight = minRoomHeight;
-            generator.maxRoomHeight = maxRoomHeight;
-            generator.minRoomWidth = minRoomWidth;
-            generator.maxRoomWidth = maxRoomWidth;
-            generator.wallFactory = wallFactory;
-            generator.stepFactory = stepFactory;
-            generator.doorFactory = doorFactory;
-            generator.floorFactory = floorFactory;
-            generator.wallCornerFactory = wallCornerFactory;
-            generator.roomPatterns = roomPatterns;
-            StartCoroutine(generator.Start());
-            generator.Start();
-            
             
         }
 
@@ -122,13 +97,13 @@ namespace MemoryTrap
             //DrawGizmosMap(0, 100f);
         }
         
-        public void DrawGizmosMap(int level,float offset)
+        public void DrawGizmosMap(float offset)
         {
-            for (int i = 0; i < maps.GetLength(1); i++)
+            for (int i = 0; i < map.GetLength(0); i++)
             {
-                for (int j = 0; j < maps.GetLength(2); j++)
+                for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    MapBlock bloc = maps[level, i, j];
+                    MapBlock bloc = map[i, j];
                     if(bloc == null)
                     {
                         continue;
@@ -153,6 +128,234 @@ namespace MemoryTrap
             }
         }
         
+        public Vector2 location
+        {
+            get { return _location; }
+            set
+            {
+                _location = value;
+                Vector3 localpos = transform.localPosition;
+                localpos.x = _location.x;
+                localpos.z = _location.y;
+                localpos.y = level;
+                transform.localPosition = localpos;
+            }
+        }
+
+        //将map的style赋值给block
+        public virtual void AssignStyle()
+        {
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                for(int y = 0; y < map.GetLength(1); y++)
+                {
+                    map[x, y].style = style;
+                }
+            }
+        }
+
+        public Node Serialize()
+        {
+            Node cur = Node.NewTable();
+            cur["location"] = Node.NewTable();
+            cur["location"]["x"] = Node.NewNumber(location.x);
+            cur["location"]["y"] = Node.NewNumber(location.y);
+            cur["level"] = Node.NewInt(level);
+            cur["style"] = Node.NewString(style);
+            cur["roomList"] = Node.NewArray();
+            for(int i = 0; i < roomList.Count; i++)
+            {
+                Node tmp = Node.NewTable();
+                RectI tmpR = roomList[i];
+                tmp["left"] = tmpR.left;
+                tmp["top"] = tmpR.top;
+                tmp["width"] = tmpR.width;
+                tmp["height"] = tmpR.height;
+                cur["roomList"][i] = tmp;
+            }
+            cur["map"] = Node.NewArray();
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                cur["map"][x] = Node.NewArray();
+                for(int y = 0; y < map.GetLength(1); y++)
+                {
+                    cur["map"][x][y] = map[x, y].Serialize();
+                }
+            }
+            
+            return cur;
+        }
+
+        //从json中恢复
+        public void DeSerialize(Node node)
+        {
+            location = new Vector2((float)(double)(node["location"]["x"]), (float)(double)(node["location"]["y"]));
+            level = (int)node["level"];
+            style = (string)node["style"];
+            List<Node> tmpRoomList = (List<Node>)node["roomList"];
+            roomList = new List<RectI>();
+            for(int i = 0; i < roomList.Count; i++)
+            {
+                Node roomNode = tmpRoomList[i];
+                roomList.Add(new RectI((int)roomNode["left"], (int)roomNode["top"], (int)roomNode["width"], (int)roomNode["height"]));
+            }
+            List<Node> colNode = (List<Node>)node["map"];
+            map = new MapBlock[colNode.Count, ((List<Node>)colNode[0]).Count];
+            for(int x = 0;x< colNode.Count; x++)
+            {
+                List<Node> rowNode = (List<Node>)colNode[x];
+                for(int y = 0; y < rowNode.Count; y++)
+                {
+                    Node blockNode = rowNode[y];
+                    MapBlock.Type type = (MapBlock.Type)(int)blockNode["type"];
+                    switch (type)
+                    {
+                        case MapBlock.Type.door:
+                            Door door = new Door();
+                            door.DeSerialize(blockNode);
+                            map[x, y] = door;
+                            break;
+                        case MapBlock.Type.downStair:
+                            DownStair downStair = new DownStair();
+                            downStair.DeSerialize(blockNode);
+                            map[x, y] = downStair;
+                            break;
+                        case MapBlock.Type.upStair:
+                            UpStair upStair = new UpStair();
+                            upStair.DeSerialize(blockNode);
+                            map[x, y] = upStair;
+                            break;
+                        case MapBlock.Type.empty:
+                            Empty empty = new Empty();
+                            empty.DeSerialize(blockNode);
+                            map[x, y] = empty;
+                            break;
+                        case MapBlock.Type.floor:
+                            Floor floor = new Floor();
+                            floor.DeSerialize(blockNode);
+                            map[x, y] = floor;
+                            break;
+                        case MapBlock.Type.wall:
+                            Wall wall = new Wall();
+                            wall.DeSerialize(blockNode);
+                            map[x, y] = wall;
+                            break;
+                        case MapBlock.Type.wallCorner:
+                            WallCorner wallCorner = new WallCorner();
+                            wallCorner.DeSerialize(blockNode);
+                            map[x, y] = wallCorner;
+                            break;
+                    }
+                }
+            }
+        }
+        
+        public void ShowAll()
+        {
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                for(int y= 0; y < map.GetLength(1); y++)
+                {
+                    if(map[x,y].gameObject == null)
+                    {
+                        map[x, y].CreateObject(new Vector2(x, y), transform);
+                    }else
+                    {
+                        map[x, y].gameObject.SetActive(true);
+                    }
+                }
+            }
+        }
+
+        public void DisableAll()
+        {
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                for(int y = 0; y < map.GetLength(1); y++)
+                {
+                    if(map[x, y].gameObject != null)
+                        map[x, y].gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public void DestroyAll()
+        {
+            for (int x = 0; x < map.GetLength(0); x++)
+            {
+                for (int y = 0; y < map.GetLength(1); y++)
+                {
+                    if (map[x, y].gameObject != null)
+                        Destroy(map[x, y].gameObject);
+                }
+            }
+        }
+
+        public IEnumerator ZoomIn(int frames)
+        {
+            yield return null;
+        }
+
+
+        public IEnumerator ZoomOut(int frames)
+        {
+            yield return null;
+        }
+
+        public IEnumerator ZoomIn(float time)
+        {
+            yield return null;
+        }
+
+
+        public IEnumerator ZoomOut(float time)
+        {
+            yield return null;
+        }
+
+        public void ShowArea(RectI area)
+        {
+            if (area.left < 0)
+            {
+                area.left = 0;
+            }
+            if (area.right >= map.GetLength(0))
+            {
+                area.width = map.GetLength(0) - area.left;
+            }
+            if (area.top < 0)
+            {
+                area.top = 0;
+            }
+            if(area.bottom >= map.GetLength(1))
+            {
+                area.height = map.GetLength(1) - area.top;
+            }
+            if(curArea != null)
+            {
+                for(int x = curArea.left; x <= curArea.right; x++)
+                {
+                    for(int y = curArea.top; y <= curArea.bottom; y++)
+                    {
+                        if (!area.InSide(x, y))
+                        {
+                            if (map[x, y].gameObject != null)
+                            {
+                                Destroy(map[x, y].gameObject);
+                            }
+                        }
+                    }
+                }
+            }
+            for(int x = area.left; x <= area.right; x++)
+            {
+                for(int y = area.top; y <= area.bottom; y++)
+                {
+                    map[x, y].CreateObject(new Vector2(x, y), transform);
+                }
+            }
+        }
+
         public void Update()
         {
             
