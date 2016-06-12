@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 //used to Manage the whole game
 namespace MemoryTrap
@@ -22,12 +23,14 @@ namespace MemoryTrap
             //游戏失败
             fail
         }
-        Battle curBattle;
+        public Battle curBattle;
         bool stateDone = false;
         public State curState = State.begin;
         public int turnCount = 0;
         /*需要实现的主要角色*/
-        //public MainCharactor charactor;
+        //public MainCharactor mainCharactor;
+        /*需要实现的怪物*/
+        //public List<EnemyCharactor> enemyCharactors;
         /*用来测试的charactor*/
         public Test.TestCharactor charactor;
         public Camera fowCamera;
