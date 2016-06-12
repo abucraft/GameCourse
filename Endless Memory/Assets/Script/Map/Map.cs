@@ -378,7 +378,7 @@ namespace MemoryTrap
                 {
                     if(Mathf.Sqrt((x-charactor.x)*(x-charactor.x)+(y-charactor.y)*(y-charactor.y))<= sight)
                     {
-                        if(!BarrierInLine(new Vector2I(x,y),new Vector2I(charactor.x, charactor.y)))
+                        if(!BarrierInLine(new Vector2I(x,y),new Vector2I(charactor.x, charactor.y),false))
                         {
                             map[x, y].inSight = true;
                             map[x, y].visited = true;
@@ -397,119 +397,10 @@ namespace MemoryTrap
             }
             return i;
         }
-        //判断线段中间是否有障碍物，前提src和dst都在map范围内
-        public bool BarrierInLine(Vector2I src,Vector2I dst)
-        {
-            Debug.Assert(new RectI(0, 0, map.GetLength(0), map.GetLength(1)).InSide(src.x, src.y));
-            Debug.Assert(new RectI(0, 0, map.GetLength(0), map.GetLength(1)).InSide(dst.x, dst.y));
-            int height = dst.y - src.y;
-            int width = dst.x - src.x;
-            if (Mathf.Abs(width) > Mathf.Abs(height))
-            {
-                
-                if(width < 0)
-                {
-                    for(int x = dst.x + 1; x < src.x; x++)
-                    {
-                        int y = 0;
-                        if (src.y > dst.y)
-                        {
-                            y = (int)Mathf.Lerp(dst.y, src.y, (x - dst.x) / Mathf.Abs((float)width));
-                        }else
-                        {
-                            y = UpFloatInt(Mathf.Lerp(dst.y, src.y, (x - dst.x) / Mathf.Abs((float)width)));
-                        }
-                        MapBlock blk = map[x, y];
-                        if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
-                        {
-                            return true;
-                        }
-                        if (blk.type == MapBlock.Type.door && !((Door)blk).Opened)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                else
-                {
-                    for(int x = src.x + 1; x < dst.x; x++)
-                    {
-                        int y = 0;
-                        if (src.y > dst.y)
-                        {
-                            y = (int)Mathf.Lerp(src.y, dst.y, (x - src.x) / Mathf.Abs((float)width));
-                        }
-                        else
-                        {
-                            y = UpFloatInt(Mathf.Lerp(src.y, dst.y, (x - src.x) / Mathf.Abs((float)width)));
-                        }
-                        MapBlock blk = map[x, y];
-                        if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
-                        {
-                            return true;
-                        }
-                        if (blk.type == MapBlock.Type.door && !((Door)blk).Opened)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }else
-            {
-                if (height < 0)
-                {
-                    for (int y = dst.y + 1; y < src.y; y++)
-                    {
-                        int x = 0;
-                        if (src.x > dst.x)
-                        {
-                            x = (int)(Mathf.Lerp(dst.x, src.x, (y - dst.y) / Mathf.Abs((float)height)));
-                        }
-                        else
-                        {
-                            x = UpFloatInt(Mathf.Lerp(dst.x, src.x, (y - dst.y) / Mathf.Abs((float)height)));
-                        }
-                        MapBlock blk = map[x, y];
-                        if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
-                        {
-                            return true;
-                        }
-                        if (blk.type == MapBlock.Type.door && !((Door)blk).Opened)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int y = src.y + 1; y < dst.y; y++)
-                    {
-                        int x = 0;
-                        if (src.x > dst.x)
-                        {
-                            x = (int)(Mathf.Lerp(src.x, dst.x, (y - src.y) / Mathf.Abs((float)height)));
-                        }
-                        else
-                        {
-                            x = UpFloatInt(Mathf.Lerp(src.x, dst.x, (y - src.y) / Mathf.Abs((float)height)));
-                        }
-                        MapBlock blk = map[x, y];
-                        if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
-                        {
-                            return true;
-                        }
-                        if (blk.type == MapBlock.Type.door && !((Door)blk).Opened)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+        
 
         //判断线段中间是否有障碍物，前提src和dst都在map范围内
-        public bool BarrierInLineDebug(Vector2I src, Vector2I dst)
+        public bool BarrierInLine(Vector2I src, Vector2I dst, bool debug)
         {
             Debug.Assert(new RectI(0, 0, map.GetLength(0), map.GetLength(1)).InSide(src.x, src.y));
             Debug.Assert(new RectI(0, 0, map.GetLength(0), map.GetLength(1)).InSide(dst.x, dst.y));
@@ -532,7 +423,8 @@ namespace MemoryTrap
                             y = UpFloatInt(Mathf.Lerp(dst.y, src.y, (x - dst.x) / Mathf.Abs((float)width)));
                         }
                         MapBlock blk = map[x, y];
-                        Debug.Log((new Vector2I(x, y)).ToString()+':'+blk.type);
+                        if(debug)
+                            Debug.Log((new Vector2I(x, y)).ToString()+':'+blk.type);
                         if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
                         {
                             return true;
@@ -557,7 +449,8 @@ namespace MemoryTrap
                             y = UpFloatInt(Mathf.Lerp(src.y, dst.y, (x - src.x) / Mathf.Abs((float)width)));
                         }
                         MapBlock blk = map[x, y];
-                        Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
+                        if(debug)
+                            Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
                         if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
                         {
                             return true;
@@ -585,7 +478,8 @@ namespace MemoryTrap
                             x = UpFloatInt(Mathf.Lerp(dst.x, src.x, (y - dst.y) / Mathf.Abs((float)height)));
                         }
                         MapBlock blk = map[x, y];
-                        Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
+                        if(debug)
+                            Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
                         if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
                         {
                             return true;
@@ -610,7 +504,8 @@ namespace MemoryTrap
                             x = UpFloatInt(Mathf.Lerp(src.x, dst.x, (y - src.y) / Mathf.Abs((float)height)));
                         }
                         MapBlock blk = map[x, y];
-                        Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
+                        if(debug)
+                            Debug.Log((new Vector2I(x, y)).ToString() + ':' + blk.type);
                         if (blk.type == MapBlock.Type.wall || blk.type == MapBlock.Type.wallCorner)
                         {
                             return true;

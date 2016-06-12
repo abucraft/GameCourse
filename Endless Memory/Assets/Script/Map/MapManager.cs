@@ -42,6 +42,8 @@ namespace MemoryTrap
         [Range(2, 100)]
         public int maxRoadLength = 10;
         public string[] styles = { "normal" };
+        public Color selectColor;
+        public Color availableColor;
         public MapBlockFactory wallFactory;
         public MapBlockFactory emptyFactory;
         public MapBlockFactory upStairFactory;
@@ -88,6 +90,7 @@ namespace MemoryTrap
             StartCoroutine(GenerateRandomMaps());
         }
 
+        //生成随机地图
         public IEnumerator GenerateRandomMaps()
         {
             if (maps != null && maps.Length != 0)
@@ -96,6 +99,7 @@ namespace MemoryTrap
             }
             else
             {
+                state = State.generating;
                 maps = new Map[totalLevel];
                 MapGenerator[] gens = new MapGenerator[totalLevel];
                 if (rand == null)
@@ -136,6 +140,7 @@ namespace MemoryTrap
             state = State.ready;
         }
 
+        //多线程生成单张地图，并返回生成器
         public MapGenerator GenerateMap(int level,int width,int length,string style)
         {
             MapGenerator generator = new MapGenerator();
@@ -156,6 +161,7 @@ namespace MemoryTrap
             return generator;
         }
 
+        //连接多层地图
         public void ConnectMap(Map lower,Map uper)
         {
             if (rand == null)
@@ -248,11 +254,12 @@ namespace MemoryTrap
             }
         }
 
-        public static void LogMapBlock(Vector3 loc)
+        //log并返回对应位置的block
+        public Vector2I LogMapBlock(Vector3 loc)
         {
             int level = (int)loc.y;
             Vector2 pos = new Vector2(loc.x, loc.z);
-            Map map = instance.maps[level];
+            Map map = maps[level];
             pos -= map.location;
             Vector2I mapLoc = new Vector2I((int)pos.x, (int)pos.y);
             MapBlock blk = map.map[(int)pos.x, (int)pos.y];
@@ -263,6 +270,7 @@ namespace MemoryTrap
             Debug.Log("in sight:" + blk.inSight);
             Debug.Log("visited:" + blk.visited);
             Debug.Log("shader:" + blk.gameObject.GetComponentInChildren<MeshRenderer>().material.shader.name);
+            return mapLoc;
         }
 
         //显示所有地图块
@@ -287,6 +295,7 @@ namespace MemoryTrap
             }
         }
 
+        //更新地图块的可见状态，位置为角色的三维坐标位置
         public void UpdateBlockState(Vector2 charactor,int sight,int level)
         {
             //Charactor map pos
@@ -294,6 +303,7 @@ namespace MemoryTrap
             maps[level].UpdateBlockState(new Vector2I((int)cMapPos.x, (int)cMapPos.y), sight);
         }
 
+        //位置为角色在地图上的位置
         public void UpdateBlockState(Vector2I charactor, int sight, int level)
         {
             

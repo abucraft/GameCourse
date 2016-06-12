@@ -8,6 +8,8 @@ namespace MemoryTrap
     {
         //public Node node;
         protected GameObject _gameObject;
+        //ui to display info
+        protected GameObject _uiCanvas;
         [System.Serializable]
         public enum Dir
         {
@@ -36,6 +38,8 @@ namespace MemoryTrap
         public string style = "normal";
         protected bool _visited = false;
         protected bool _inSight = false;
+        protected bool _available = false;
+        protected bool _selected = false;
         public virtual bool visited
         {
             get
@@ -65,6 +69,37 @@ namespace MemoryTrap
                 {
                     _inSight = value;
                     ChangeVisibility();
+                }
+            }
+        }
+
+        public virtual bool available {
+            get
+            {
+                return _available;
+            }
+            set
+            {
+                if (_available != value)
+                {
+                    _available = value;
+                    ChangeDisplay();
+                }
+            }
+        }
+
+        public virtual bool selected
+        {
+            get
+            {
+                return _selected;
+            }
+            set
+            {
+                if (_selected != value)
+                {
+                    _selected = value;
+                    ChangeDisplay();
                 }
             }
         }
@@ -125,6 +160,37 @@ namespace MemoryTrap
             }
         }
 
+        public virtual void ChangeDisplay()
+        {
+            if (_gameObject != null)
+            {
+                MeshRenderer[] renders = _gameObject.GetComponentsInChildren<MeshRenderer>();
+                if (_selected)
+                {
+                    Color sColor = MapManager.instance.selectColor;
+                    for(int i = 0; i < renders.Length; i++)
+                    {
+                        renders[i].material.color = sColor;
+                    }
+                    return;
+                }
+                if (_available)
+                {
+                    Color aColor = MapManager.instance.availableColor;
+                    for (int i = 0; i < renders.Length; i++)
+                    {
+                        renders[i].material.color = aColor;
+                    }
+                    return;
+                }
+                for(int i = 0; i < renders.Length; i++)
+                {
+                    renders[i].material.color = Color.white;
+                }
+                return;
+            }
+        }
+
         public virtual void ChangeVisibility()
         {
             if (_gameObject != null)
@@ -154,6 +220,36 @@ namespace MemoryTrap
                     renders[i].material.shader = sHide;
                 }
                 return;
+            }
+        }
+
+        //显示Block信息
+        public virtual void DisplayInfo(string addition)
+        {
+            if (_gameObject == null)
+            {
+                return;
+            }
+            if (_uiCanvas == null)
+            {
+                _uiCanvas = GameObject.Instantiate<GameObject>(UIManager.instance.objectCanvas);
+                _uiCanvas.transform.parent = _gameObject.transform;
+                _uiCanvas.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, -1);
+                string info = addition + "type: " + type + '\n' + "direction: " + direction + '\n' + "style: " + style;
+                _uiCanvas.GetComponent<ObjectUI>().dialog.text = info;
+            }
+        }
+
+        //不显示信息
+        public virtual void HideInfo()
+        {
+            if(_gameObject== null)
+            {
+                return;
+            }
+            if (_uiCanvas != null)
+            {
+                GameObject.Destroy(_uiCanvas);
             }
         }
 
