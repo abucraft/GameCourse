@@ -28,8 +28,8 @@ namespace MemoryTrap
             {
                 if (!turnOver)
                 {
-                    UpdatePosition();
-                    MapManager.instance.UpdateBlockState(mapPos, sight, curLevel);
+                    if(UpdatePosition())
+                        MapManager.instance.UpdateBlockState(mapPos, sight, curLevel);
                     if (Input.GetMouseButtonDown(0))
                     {
                         Vector3 mousePos = Input.mousePosition;
@@ -72,15 +72,20 @@ namespace MemoryTrap
             {
                 Debug.Log(mapPos);
             }
-            public void UpdatePosition()
+            public bool UpdatePosition()
             {
                 Vector3 pos = transform.position;
                 Vector2 tdPos = new Vector2(pos.x, pos.z);
                 Vector2 mpPos = tdPos - MapManager.instance.maps[curLevel].location;
+                bool change = true;
+                if(mapPos.x == (int)mpPos.x && mapPos.y == (int)mpPos.y) {
+                    change = false;
+                }
                 mapPos.x = (int)mpPos.x;
                 mapPos.y = (int)mpPos.y;
                 pos.y = curLevel;
                 transform.position = pos;
+                return change;
             }
 
             public void Move(Vector2I target)

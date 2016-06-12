@@ -298,6 +298,7 @@ namespace MemoryTrap
         //更新地图块的可见状态，位置为角色的三维坐标位置
         public void UpdateBlockState(Vector2 charactor,int sight,int level)
         {
+            maps[level].RefreshBlockVisibility();
             //Charactor map pos
             Vector2 cMapPos = charactor - maps[level].location;
             maps[level].UpdateBlockState(new Vector2I((int)cMapPos.x, (int)cMapPos.y), sight);
@@ -306,7 +307,7 @@ namespace MemoryTrap
         //位置为角色在地图上的位置
         public void UpdateBlockState(Vector2I charactor, int sight, int level)
         {
-            
+            maps[level].RefreshBlockVisibility();
             maps[level].UpdateBlockState(charactor, sight);
         }
 
