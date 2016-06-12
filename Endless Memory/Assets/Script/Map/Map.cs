@@ -333,6 +333,11 @@ namespace MemoryTrap
             }
             if(curArea != null)
             {
+                //两块区域相同，可以跳过
+                if (curArea.Equals(area))
+                {
+                    return;
+                }
                 for(int x = curArea.left; x <= curArea.right; x++)
                 {
                     for(int y = curArea.top; y <= curArea.bottom; y++)
@@ -353,17 +358,31 @@ namespace MemoryTrap
                 {
                     map[x, y].CreateObject(new Vector2(x, y), transform);
                     map[x, y].gameObject.SetActive(true);
-                    map[x, y].inSight = false;
+                    //map[x, y].inSight = false;
                 }
             }
             curArea = area;
             //Debug.Log("show area" + Time.frameCount);
         }
 
+        public void RefreshBlockVisibility()
+        {
+            if (curArea != null)
+            {
+                for (int x = curArea.left; x <= curArea.right; x++)
+                {
+                    for (int y = curArea.top; y <= curArea.bottom; y++)
+                    {
+                        map[x, y].inSight = false;
+                    }
+                }
+            }
+        }
 
         public void UpdateBlockState(Vector2I charactor,int sight)
         {
             //Debug.Log("update block state"+ Time.frameCount);
+            
             int left = charactor.x - sight;
             left = left >= 0 ? left : 0;
             int right = charactor.x + sight;
