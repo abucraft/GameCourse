@@ -8,7 +8,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 407760}
-  - 114: {fileID: 11480464}
+  - 114: {fileID: 11414404}
   m_Layer: 0
   m_Name: UpStairFactory
   m_TagString: Untagged
@@ -28,7 +28,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!114 &11480464
+--- !u!114 &11414404
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -36,7 +36,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 185268}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2eeea9c4143c75243afcb578d0447c2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 15d2412175d118941b456a4a7c8cf227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   type: 4

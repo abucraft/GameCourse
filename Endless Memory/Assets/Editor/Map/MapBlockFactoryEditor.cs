@@ -8,11 +8,6 @@ namespace MemoryTrap
     public class MapBlockFactoryEditor : Editor
     {
         public bool foldObjects = true;
-        SerializedProperty objCollection;
-        void OnEnable()
-        {
-            objCollection = serializedObject.FindProperty("objCollection");
-        }
          
         public override void OnInspectorGUI()
         {
