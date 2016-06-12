@@ -25,6 +25,10 @@ namespace MemoryTrap
 
         public override void CreateObject(Vector2 pos, Transform parent)
         {
+            if (gameObject != null)
+            {
+                return;
+            }
             MapManager mpm = MapManager.instance;
             if (mpm != null)
             {

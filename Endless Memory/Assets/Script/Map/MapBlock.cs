@@ -28,11 +28,47 @@ namespace MemoryTrap
             downStair,
             empty
         }
+        
 
         protected Dir _direction = Dir.front;
         public Type type = Type.empty;
         public int idx = 0;
         public string style = "normal";
+        protected bool _visited = false;
+        protected bool _inSight = false;
+        public virtual bool visited
+        {
+            get
+            {
+                return _visited;
+            }
+            set
+            {
+                if(_visited != value)
+                {
+                    _visited = value;
+                    ChangeVisibility();
+                }
+                
+            }
+        }
+
+        public virtual bool inSight
+        {
+            get
+            {
+                return _inSight;
+            }
+            set
+            {
+                if (_inSight != value)
+                {
+                    _inSight = value;
+                    ChangeVisibility();
+                }
+            }
+        }
+
         public Dir direction
         {
             get { return _direction; }
@@ -85,6 +121,39 @@ namespace MemoryTrap
                             _gameObject.transform.localRotation = Quaternion.AngleAxis(180, Vector3.up);
                         break;
                 }
+                ChangeVisibility();
+            }
+        }
+
+        public virtual void ChangeVisibility()
+        {
+            if (_gameObject != null)
+            {
+                MeshRenderer[] renders = _gameObject.GetComponentsInChildren<MeshRenderer>();
+                if (_inSight)
+                {
+                    Shader sInSight = Shader.Find("MapBlock/InSight");
+                    for(int i = 0; i < renders.Length; i++)
+                    {
+                        renders[i].material.shader = sInSight;
+                    }
+                    return;
+                }
+                if (_visited)
+                {
+                    Shader sVisited = Shader.Find("MapBlock/Visited");
+                    for(int i = 0; i < renders.Length; i++)
+                    {
+                        renders[i].material.shader = sVisited;
+                    }
+                    return;
+                }
+                Shader sHide = Shader.Find("MapBlock/Hide");
+                for(int i = 0; i < renders.Length; i++)
+                {
+                    renders[i].material.shader = sHide;
+                }
+                return;
             }
         }
 
@@ -101,6 +170,7 @@ namespace MemoryTrap
             cur["dir"] = Node.NewInt((int)direction);
             cur["idx"] = Node.NewInt(idx);
             cur["style"] = Node.NewString(style);
+            cur["visited"] = Node.NewBool(visited);
             return cur;
         }
 
@@ -110,6 +180,7 @@ namespace MemoryTrap
             _direction = (Dir)(int)node["dir"];
             idx = (int)node["idx"];
             style = (string)node["style"];
+            visited = (bool)node["visited"];
         }
 
         ~MapBlock()

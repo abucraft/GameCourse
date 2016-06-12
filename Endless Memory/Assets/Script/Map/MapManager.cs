@@ -6,6 +6,11 @@ namespace MemoryTrap
 {
     public class MapManager : MonoBehaviour
     {
+        public enum State
+        {
+            generating,
+            ready
+        }
         //public Node mapNodes;
         [HideInInspector]
         public Map[] maps;
@@ -53,6 +58,7 @@ namespace MemoryTrap
         protected RoomPattern[] _roomPatterns;
 
         public static MapManager instance;
+        public State state;
         
         // Use this for initialization
         void Start()
@@ -66,6 +72,7 @@ namespace MemoryTrap
             {
                 instance = this;
             }
+            state = State.generating;
             Debug.Assert(wallFactory != null);
             Debug.Assert(emptyFactory != null);
             Debug.Assert(upStairFactory != null);
@@ -126,6 +133,7 @@ namespace MemoryTrap
                     ConnectMap(maps[i], maps[i + 1]);
                 }
             }
+            state = State.ready;
         }
 
         public MapGenerator GenerateMap(int level,int width,int length,string style)
@@ -252,12 +260,17 @@ namespace MemoryTrap
             Debug.Log("map loc:" + mapLoc.ToString());
             Debug.Log("type is:" + blk.type.ToString());
             Debug.Log("dir is:"+blk.direction.ToString());
+            Debug.Log("in sight:" + blk.inSight);
+            Debug.Log("visited:" + blk.visited);
+            Debug.Log("shader:" + blk.gameObject.GetComponentInChildren<MeshRenderer>().material.shader.name);
         }
 
         //显示所有地图块
         public void ShowAllMap(bool show)
         {
-            Debug.Log(show);
+            //Debug.Log(show);
+            if (state != State.ready)
+                return;
             if (show)
             {
                 for (int i = 0; i < maps.Length; i++)
@@ -274,6 +287,33 @@ namespace MemoryTrap
             }
         }
 
+        public void UpdateBlockState(Vector2 charactor,int sight,int level)
+        {
+            //Charactor map pos
+            Vector2 cMapPos = charactor - maps[level].location;
+            maps[level].UpdateBlockState(new Vector2I((int)cMapPos.x, (int)cMapPos.y), sight);
+        }
+
+        public void UpdateBlockState(Vector2I charactor, int sight, int level)
+        {
+            
+            maps[level].UpdateBlockState(charactor, sight);
+        }
+
+
+        //display the rect from camera
+        public void ShowCameraRect(Rect rct,int level)
+        {
+            if(state != State.ready)
+            {
+                return;
+            }
+            Vector2 mapLoc = maps[level].location;
+            rct.x -= mapLoc.x;
+            rct.y -= mapLoc.y;
+            RectI dst = new RectI((int)rct.x, (int)rct.y, (int)rct.width, (int)rct.height);
+            maps[level].ShowArea(dst);
+        }
         /*public void LoadMap(int level)
         {
 

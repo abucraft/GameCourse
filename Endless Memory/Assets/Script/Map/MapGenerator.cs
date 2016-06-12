@@ -360,7 +360,7 @@ namespace MemoryTrap
                         WallCorner wc = new WallCorner();
                         wc.direction = dir;
                         map.map[area.left + i, area.bottom - j] = wc;
-                        Debug.Log("place wall corner:" +new Vector2I(area.left+i,area.top+j).ToString()+" dir:" + dir.ToString());
+                        //Debug.Log("place wall corner:" +new Vector2I(area.left+i,area.top+j).ToString()+" dir:" + dir.ToString());
                     }
                     //放置地板
                     if (tmpColor.Equals(Floor.editColor))
