@@ -10,31 +10,46 @@ namespace MemoryTrap
             public Vector2I mapPos;
             public int curLevel =0;
             public int sight = 5;
-            bool ready = false;
+            public bool turnOver = false;
+            public MapBlock curBlock;
             // Use this for initialization
             void Start()
             {
 
             }
 
+            public void BeginTurn()
+            {
+                turnOver = false;
+            }
+
             // Update is called once per frame
             void Update()
             {
-                //Debug.Log(ready);
-                if (ready)
+                if (!turnOver)
                 {
                     UpdatePosition();
                     MapManager.instance.UpdateBlockState(mapPos, sight, curLevel);
-                }
-                if (Input.GetMouseButtonDown(0))
-                {
-                    Vector3 mousePos = Input.mousePosition;
-                    Debug.Log(mousePos);
-                    Ray ray = Camera.main.ScreenPointToRay(mousePos);
-                    RaycastHit[] hits = Physics.RaycastAll(ray, 1000);
-                    if (hits.Length > 0)
+                    if (Input.GetMouseButtonDown(0))
                     {
-                        MapManager.LogMapBlock(hits[0].transform.position);
+                        Vector3 mousePos = Input.mousePosition;
+                        Debug.Log(mousePos);
+                        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+                        RaycastHit[] hits = Physics.RaycastAll(ray, 1000);
+                        if (hits.Length > 0)
+                        {
+                            Vector2I blkPos = MapManager.instance.LogMapBlock(hits[0].transform.position);
+                            MapBlock blk = MapManager.instance.maps[curLevel].map[blkPos.x, blkPos.y];
+                            if (curBlock != null)
+                            {
+                                curBlock.selected = false;
+                                curBlock.HideInfo();
+                            }
+                            blk.selected = true;
+                            blk.DisplayInfo(blkPos.ToString() + '\n');
+                            curBlock = blk;
+                        }
+
                     }
                 }
 
@@ -85,7 +100,6 @@ namespace MemoryTrap
                 pos += roomPos;
                 mapPos = new Vector2I((room.left + room.right) / 2, (room.top + room.bottom) / 2);
                 transform.position = new Vector3(pos.x, curLevel, pos.y);
-                ready = true;
             }
         }
     }
