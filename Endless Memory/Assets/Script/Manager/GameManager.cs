@@ -31,10 +31,12 @@ namespace MemoryTrap
         //public MainCharactor mainCharactor;
         /*需要实现的怪物*/
         //public List<EnemyCharactor> enemyCharactors;
+        public Dictionary<Vector2, TurnBaseCharactor> locationCharactors;
         /*用来测试的charactor*/
         public Test.TestCharactor charactor;
         public Camera fowCamera;
         public static GameManager instance;
+
         void Start()
         {
             if(instance != null)

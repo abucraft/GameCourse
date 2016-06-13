@@ -80,16 +80,16 @@ Material:
           m_Offset: {x: 0, y: 0}
       data:
         first:
-          name: _BloomTex
+          name: _BlendTex
         second:
-          m_Texture: {fileID: 0}
+          m_Texture: {fileID: 8400000, guid: 88e663cde7d8b2144a48a610a1d0d343, type: 2}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
         first:
-          name: _BlendTex
+          name: _BloomTex
         second:
-          m_Texture: {fileID: 8400000, guid: 88e663cde7d8b2144a48a610a1d0d343, type: 2}
+          m_Texture: {fileID: 0}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
     m_Floats:
