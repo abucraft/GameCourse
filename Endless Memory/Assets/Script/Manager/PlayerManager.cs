@@ -49,7 +49,6 @@ namespace MemoryTrap
         void FixedUpdate()
         {
             Vector3 inputVector = new Vector3(CnInputManager.GetAxis("Horizontal"), 0, CnInputManager.GetAxis("Vertical"));
-            print(inputVector);
             Vector3 movementVector = Vector3.zero;
             if (inputVector.sqrMagnitude > 0.001f)
             {

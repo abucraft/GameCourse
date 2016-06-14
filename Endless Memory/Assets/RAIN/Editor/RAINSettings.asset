@@ -24,4 +24,4 @@ MonoBehaviour:
   _updateFrequencyHours: 24
   _showWelcomeWindow: 1
   _displayVersionWarning: 1
-  _projectSkin: {fileID: 11400000, guid: c9d80d4944a321f4b83a24c0efa043e9, type: 2}
+  _projectSkin: {fileID: 11400000, guid: 61ff3d8f4d81d0645a3908342b1c6b41, type: 2}
