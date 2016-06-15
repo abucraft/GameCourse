@@ -5,13 +5,18 @@ namespace MemoryTrap
     public class CameraMapWatch : MonoBehaviour
     {
 
-        public Test.TestCharactor focusCharactor;
+        public MainCharactor focusCharactor;
         /*public Texture2D fowTex;
         public GameObject fow;
         public int sample = 4;*/
         // Use this for initialization
         void Start()
         {
+        }
+
+        public void RefreshCameraRect()
+        {
+            MapManager.instance.ShowCameraRect(GetCameraRect(), focusCharactor.curLevel);
         }
 
         //获取到视野内的方块区域

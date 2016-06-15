@@ -77,6 +77,16 @@ namespace MemoryTrap
         {
             return "(" + _x.ToString() + ',' + _y.ToString() + ')';
         }
+
+        public static explicit operator Vector2(Vector2I vec)
+        {
+            return new Vector2(vec.x, vec.y);
+        }
+
+        public static implicit operator Vector2I(Vector2 vec)
+        {
+            return new Vector2I((int)vec.x, (int)vec.y);
+        }
     }
 
     public class Map : MonoBehaviour

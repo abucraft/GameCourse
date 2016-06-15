@@ -47,8 +47,8 @@ namespace MemoryTrap
         {
             // 检查周围是否有door存在
             Map map = self.walk.getMap();
-            int x = (int)self.postion.x;
-            int y = (int)self.postion.y;
+            int x = (int)self.position.x;
+            int y = (int)self.position.y;
             int[,] array = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
             for (int i = 0; i < 4; i++)
             {
@@ -66,8 +66,8 @@ namespace MemoryTrap
                 return new DefenseAI();
 
             // 检查附近是否有同伴
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = GameObject.Find("GameManager").GetComponent<GameManager>().locationCharactors;
-            self.walk.getReachableArea(self.postion, self.step);
+            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = GameManager.instance.levelLocationCharactors[self.curLevel];
+            self.walk.getReachableArea(self.position, self.step);
             if (self.walk.reachableCharator.Count != 0)
             {
                 if(!self.walk.reachableCharator[0].Equals(main))
@@ -95,11 +95,11 @@ namespace MemoryTrap
         override public TurnBaseMonsterAI behaviorChange(EnemyCharactor self, TurnBaseCharactor main, List<EnemyCharactor> monsters)
         {
             if (self.inBattle) return this;
-            int vagueDistanceMain = (int)(System.Math.Abs(self.postion.x - main.postion.x)) + (int)(System.Math.Abs(self.postion.y - main.postion.y));
+            int vagueDistanceMain = (int)(System.Math.Abs(self.position.x - main.position.x)) + (int)(System.Math.Abs(self.position.y - main.position.y));
             if (vagueDistanceMain > main.step + self.step + 1) return this;
             
 
-            List<Vector2> pathToMain = self.walk.getPathTo(self.postion, main.postion);
+            List<Vector2> pathToMain = self.walk.getPathTo(self.position, main.position);
             // 无法到达主角所在处，不动
             if (pathToMain.Count == 0) return this;
             // 可以直接到达主角所在处，变为ForwardMainAI
@@ -107,7 +107,7 @@ namespace MemoryTrap
 
             // 检查是否有战斗，有战斗，且可以两回合内进入战斗，则变为ForwardMainAI
             bool battled = false;
-            Battle curBattle = GameObject.Find("GameManager").GetComponent<GameManager>().curBattle;
+            Battle curBattle = GameManager.instance.curBattle;
             if (curBattle != null) battled = true;
 
             if(battled)
@@ -143,7 +143,7 @@ namespace MemoryTrap
 
         override public List<Vector2> behavior(EnemyCharactor self, TurnBaseCharactor main, List<EnemyCharactor> monsters)
         {
-            forwardPath = self.walk.getPathTo(self.postion, main.postion);
+            forwardPath = self.walk.getPathTo(self.position, main.position);
             List<Vector2> path = new List<Vector2>();
  
             for (int i = 0; i < forwardPath.Count; i++)
@@ -179,7 +179,7 @@ namespace MemoryTrap
         override public List<Vector2> behavior(EnemyCharactor self, TurnBaseCharactor main, List<EnemyCharactor> monsters)
         {
             if(forwardPath == null)
-                forwardPath = self.walk.getPathTo(self.postion, compaion.postion);
+                forwardPath = self.walk.getPathTo(self.position, compaion.position);
             List<Vector2> path = new List<Vector2>();
             
             for (int i = 0;i<forwardPath.Count;i++)
@@ -194,7 +194,7 @@ namespace MemoryTrap
         {
             if (self.inBattle) return new EmptyAI();
 
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactors = GameObject.Find("GameManager").GetComponent<GameManager>().locationCharactors;
+            Dictionary<Vector2, TurnBaseCharactor> locationCharactors = GameManager.instance.levelLocationCharactors[self.curLevel];
             // 检视四周是否已经有charactor，有的话
             // 如果charactor已经停止行动，变为EmptyAI
             // 如果charactor未停止行动
@@ -204,7 +204,7 @@ namespace MemoryTrap
                     if (i != 0 && j != 0) continue;
                     if (i == 0 && j == 0) continue;
                     
-                    Vector2 tmp = new Vector2((int)self.postion.x + i, (int)self.postion.y + j);
+                    Vector2 tmp = new Vector2((int)self.position.x + i, (int)self.position.y + j);
                     
                     if (locationCharactors.ContainsKey(tmp))
                         return new EmptyAI();
@@ -216,15 +216,15 @@ namespace MemoryTrap
             }
 
             // 检查和Compaion的距离，如果可以马上到达的话，那么还是FowardCompaionAI
-            forwardPath = self.walk.getPathTo(self.postion, compaion.postion);
+            forwardPath = self.walk.getPathTo(self.position, compaion.position);
             if (forwardPath.Count <= self.step + 2 && compaion.turnOver == true)
                 return this;
 
             // 检查和MainCharactor的距离，如果可以直接到达，那么就变成ForwardMainAI
-            int vagueDistanceMain = (int)(System.Math.Abs(self.postion.x - main.postion.x)) + (int)(System.Math.Abs(self.postion.y - main.postion.y));
+            int vagueDistanceMain = (int)(System.Math.Abs(self.position.x - main.position.x)) + (int)(System.Math.Abs(self.position.y - main.position.y));
             if (vagueDistanceMain <= self.step + 1)
             {
-                List<Vector2> pathToMain = self.walk.getPathTo(self.postion, main.postion);
+                List<Vector2> pathToMain = self.walk.getPathTo(self.position, main.position);
                 if (pathToMain.Count <= self.step + 2 && pathToMain.Count != 0)
                     return new ForwardMainAI();
             }

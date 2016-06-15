@@ -105,6 +105,7 @@ namespace MemoryTrap
                 pos += roomPos;
                 mapPos = new Vector2I((room.left + room.right) / 2, (room.top + room.bottom) / 2);
                 transform.position = new Vector3(pos.x, curLevel, pos.y);
+                MapManager.instance.UpdateBlockState(mapPos, sight, curLevel);
             }
         }
     }

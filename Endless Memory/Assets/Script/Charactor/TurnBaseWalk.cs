@@ -6,17 +6,18 @@ using System.Linq;
 namespace MemoryTrap
 {
     //需要自行获取地图，可以修改AppManager和GameManager
-    public abstract class TurnBaseWalk : MonoBehaviour
+    public abstract class TurnBaseWalk
     {
+        public int curLevel;
         public Map getMap()
         {
-            GameObject tmp = GameObject.Find("GameObject");
-            return tmp.GetComponent<Map>();
+            return MapManager.instance.maps[curLevel];
         }
 
         public Dictionary<Vector2,TurnBaseCharactor> getLocationCharactor()
         {
-            return GameObject.Find("GameManager").GetComponent<GameManager>().locationCharactors;
+            //从单例中直接获取变量
+            return GameManager.instance.levelLocationCharactors[curLevel];
         }
 
         protected Dictionary<Vector2, Vector2> reachableArea;
@@ -35,8 +36,6 @@ namespace MemoryTrap
 
             return
                 ((mapBlock.type == MapBlock.Type.door && ((Door)mapBlock).Opened) ||
-                mapBlock.type == MapBlock.Type.downStair ||
-                mapBlock.type == MapBlock.Type.upStair ||
                 mapBlock.type == MapBlock.Type.floor);
         }
 
@@ -98,9 +97,7 @@ namespace MemoryTrap
                                 if (!locationCharactor.ContainsKey(new Vector2(xNew, yNew)))
                                 {
                                     if
-                                    (mapBlockNew.type == MapBlock.Type.upStair
-                                    || mapBlockNew.type == MapBlock.Type.downStair
-                                    || mapBlockNew.type == MapBlock.Type.floor
+                                    (mapBlockNew.type == MapBlock.Type.floor
                                     || (mapBlockNew.type == MapBlock.Type.door && ((Door)mapBlockNew).Opened))
                                     {
                                         if (!reached.Contains(posNew))
@@ -180,9 +177,7 @@ namespace MemoryTrap
                                 Vector2 posNew = new Vector2(xNew, yNew);
                                 if (!locationCharactor.ContainsKey(new Vector2(xNew, yNew)))
                                 {
-                                    if (mapBlockNew.type == MapBlock.Type.upStair
-                                    || mapBlockNew.type == MapBlock.Type.downStair
-                                    || mapBlockNew.type == MapBlock.Type.floor
+                                    if (mapBlockNew.type == MapBlock.Type.floor
                                     || (mapBlockNew.type == MapBlock.Type.door && ((Door)mapBlockNew).Opened))
                                     {
 
@@ -244,9 +239,7 @@ namespace MemoryTrap
                             MapBlock mapBlockNew = map.map[xNew, yNew];
                             if ((xNew == (int)endPos.x && yNew == (int)endPos.y)
                                 || !locationCharactor.ContainsKey(new Vector2(xNew, yNew)) &&
-                                    (mapBlockNew.type == MapBlock.Type.upStair
-                                    || mapBlockNew.type == MapBlock.Type.downStair
-                                    || mapBlockNew.type == MapBlock.Type.floor
+                                    (mapBlockNew.type == MapBlock.Type.floor
                                     || (mapBlockNew.type == MapBlock.Type.door && ((Door)mapBlockNew).Opened)))
                             {
                                 Vector2 newPos = new Vector2(xNew, yNew);

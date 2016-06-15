@@ -27,13 +27,15 @@ namespace MemoryTrap
         bool stateDone = false;
         public State curState = State.begin;
         public int turnCount = 0;
-        /*需要实现的主要角色*/
-        //public MainCharactor mainCharactor;
+        /*主要角色*/
+        public MainCharactor mainCharactor;
         /*需要实现的怪物*/
         //public List<EnemyCharactor> enemyCharactors;
-        public Dictionary<Vector2, TurnBaseCharactor> locationCharactors;
+        //不同层之间的怪物位置
+        public Dictionary<int, Dictionary<Vector2, TurnBaseCharactor>> levelLocationCharactors;
+        //public Dictionary<Vector2, TurnBaseCharactor> locationCharactors;
         /*用来测试的charactor*/
-        public Test.TestCharactor charactor;
+        //public Test.TestCharactor charactor;
         public Camera fowCamera;
         public static GameManager instance;
 
@@ -55,7 +57,7 @@ namespace MemoryTrap
             fowCamera.gameObject.SetActive(false);
             Camera.main.GetComponent<FX.FXFOW>().enabled = false;
             //TestCharactor disable
-            charactor.gameObject.SetActive(false);
+            mainCharactor.gameObject.SetActive(false);
 
             //显示loading
             UIManager.instance.ShowLoading();
@@ -65,22 +67,26 @@ namespace MemoryTrap
             {
                 yield return null;
             }
+            //生成敌人
+            CreateEnemy();
             //开启FOW效果
             fowCamera.gameObject.SetActive(true);
             Camera.main.GetComponent<FX.FXFOW>().enabled = true;
+            Camera.main.GetComponent<CameraMapWatch>().RefreshCameraRect();
 
             //初始化角色
-            charactor.gameObject.SetActive(true);
-            charactor.ResetPos();
+            mainCharactor.gameObject.SetActive(true);
+            mainCharactor.ResetPos();
 
             //关闭loading
             UIManager.instance.DisableLoading();
-
+            curState = State.waitPlayer;
             while (curState != State.fail)
             {
                 yield return TurnLoop();
                 
                 turnCount++;
+                curState = State.waitPlayer;
             }
             yield return null;
         }
@@ -88,8 +94,10 @@ namespace MemoryTrap
 
         IEnumerator TurnLoop()
         {
+            Debug.Log("turn loop");
             while(curState!= State.turnOver)
             {
+                Debug.Log("loop state:" + curState);
                 //玩家控制结束以后是AI
                 if(curState == State.waitPlayer)
                 {
@@ -118,9 +126,9 @@ namespace MemoryTrap
 
         IEnumerator WaitPlayer()
         {
-            /*框架*/
-            charactor.BeginTurn();
-            while(!charactor.turnOver){
+            Debug.Log("wait player");
+            mainCharactor.BeginTurn();
+            while(!mainCharactor.turnOver){
                 yield return null;
             }
             
@@ -137,6 +145,17 @@ namespace MemoryTrap
             if(curState == State.turnOver)
             {
                 curState = State.waitPlayer;
+            }
+        }
+
+        public void CreateEnemy()
+        {
+            
+            //todo:应急措施
+            levelLocationCharactors = new Dictionary<int, Dictionary<Vector2, TurnBaseCharactor>>();
+            for(int i = 0; i < MapManager.instance.maps.Length; i++)
+            {
+                levelLocationCharactors[i] = new Dictionary<Vector2, TurnBaseCharactor>();
             }
         }
 

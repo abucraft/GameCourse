@@ -157,11 +157,13 @@ namespace MemoryTrap
                         break;
                 }
                 ChangeVisibility();
+                ChangeDisplay();
             }
         }
 
         public virtual void ChangeDisplay()
         {
+            //Debug.Log("change available color");
             if (_gameObject != null)
             {
                 MeshRenderer[] renders = _gameObject.GetComponentsInChildren<MeshRenderer>();
@@ -176,6 +178,7 @@ namespace MemoryTrap
                 }
                 if (_available)
                 {
+                    
                     Color aColor = MapManager.instance.availableColor;
                     for (int i = 0; i < renders.Length; i++)
                     {

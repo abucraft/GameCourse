@@ -254,7 +254,7 @@ namespace MemoryTrap
             }
         }
 
-        //log并返回对应位置的block
+        //log并返回对应位置的block, 仅供test使用
         public Vector2I LogMapBlock(Vector3 loc)
         {
             int level = (int)loc.y;
@@ -270,6 +270,24 @@ namespace MemoryTrap
             Debug.Log("in sight:" + blk.inSight);
             Debug.Log("visited:" + blk.visited);
             Debug.Log("shader:" + blk.gameObject.GetComponentInChildren<MeshRenderer>().material.shader.name);
+            return mapLoc;
+        }
+
+        //返回对应位置地图块
+        public Vector2I getMapBlockPos(Vector3 loc,int level)
+        {
+            if(level != (int)loc.y)
+            {
+                return null;
+            }
+            Vector2 pos = new Vector2(loc.x, loc.z);
+            Map map = maps[level];
+            pos -= map.location;
+            Vector2I mapLoc = new Vector2I((int)pos.x, (int)pos.y);
+            if(mapLoc.x<0||mapLoc.x>= map.map.GetLength(0) || mapLoc.y < 0 || mapLoc.y >= map.map.GetLength(1))
+            {
+                return null;
+            }
             return mapLoc;
         }
 
@@ -296,13 +314,13 @@ namespace MemoryTrap
         }
 
         //更新地图块的可见状态，位置为角色的三维坐标位置
-        public void UpdateBlockState(Vector2 charactor,int sight,int level)
+        /*public void UpdateBlockState(Vector2 charactor,int sight,int level)
         {
             maps[level].RefreshBlockVisibility();
             //Charactor map pos
             Vector2 cMapPos = charactor - maps[level].location;
             maps[level].UpdateBlockState(new Vector2I((int)cMapPos.x, (int)cMapPos.y), sight);
-        }
+        }*/
 
         //位置为角色在地图上的位置
         public void UpdateBlockState(Vector2I charactor, int sight, int level)
