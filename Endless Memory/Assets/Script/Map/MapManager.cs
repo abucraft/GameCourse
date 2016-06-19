@@ -52,6 +52,7 @@ namespace MemoryTrap
         public MapBlockFactory floorFactory;
         public MapBlockFactory wallCornerFactory;
         public int maxTryTime = 10;
+        public int maxAreaTryTime = 15;
         System.Random rand;
         //自定义pattern显示
         [HideInInspector]
@@ -112,6 +113,7 @@ namespace MemoryTrap
                     maps[i] = gm.GetComponent<Map>();
                     int width = rand.Next(minWidth, maxWidth);
                     int length = rand.Next(minLength, maxLength);
+                    Debug.Log("map:" + i.ToString() + " Width:" + width.ToString() + " Length:" + length.ToString());
                     string style = styles[rand.Next(0, styles.Length)];
                     gens[i] = GenerateMap(i, width, length, style);
                     maps[i].level = i;
@@ -154,7 +156,7 @@ namespace MemoryTrap
             generator.maxRoomHeight = maxRoomHeight;
             generator.minRoomWidth = minRoomWidth;
             generator.maxRoomWidth = maxRoomWidth;
-       
+            generator.maxJudgeTime = maxAreaTryTime;
             generator.seed= System.DateTime.Now.Millisecond;
             generator.roomPatterns = _roomPatterns;
             generator.map = maps[level];
@@ -340,7 +342,10 @@ namespace MemoryTrap
             rct.x -= mapLoc.x;
             rct.y -= mapLoc.y;
             RectI dst = new RectI((int)rct.x, (int)rct.y, (int)rct.width, (int)rct.height);
-            maps[level].ShowArea(dst);
+            if (maps[level].ShowArea(dst))
+            {
+                GameManager.instance.OnAreaChange(level);
+            }
         }
 
         //go up stair

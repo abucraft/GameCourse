@@ -16,7 +16,10 @@ namespace MemoryTrap
         public static string use = "使用";
         public static string HPBottleName = "血瓶";
         public static string HPBottleDescription = "喝下去可以恢复50点血量";
+        public static string AppleName = "苹果";
+        public static string AppleDescription = "吃掉可以增加1点移动点";
         public static string talk = "对话";
+        public static string fight = "战斗";
         // Use this for initialization
         void Start()
         {

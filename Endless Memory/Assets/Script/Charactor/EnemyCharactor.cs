@@ -14,6 +14,9 @@ namespace MemoryTrap
         public bool inBattle = false;
         public State state = State.idle;
 
+        public string myname;
+        public string description;
+        public int attack;
         //每隔10帧刷新自身状态
         public int totalFreshCount = 10;
         private int curFreshCount;
@@ -84,18 +87,32 @@ namespace MemoryTrap
         public void ShowMesh()
         {
             Renderer mesh = GetComponent<Renderer>();
-            Collider cd = GetComponent<Collider>();
-            cd.enabled = true;
-            mesh.enabled = true;
+            Animator anime = GetComponent<Animator>();
+            if(mesh != null)
+                mesh.enabled = true;
+            if (anime != null)
+                anime.enabled = true;
+            Renderer[] childRenders = GetComponentsInChildren<Renderer>();
+            for(int i = 0; i < childRenders.Length; i++)
+            {
+                childRenders[i].enabled = true;
+            }
         }
 
         public void HideMesh()
         {
             //Debug.Log("hide mesh");
             Renderer mesh = GetComponent<Renderer>();
-            Collider cd = GetComponent<Collider>();
-            cd.enabled = false;
-            mesh.enabled = false;
+            Animator anime = GetComponent<Animator>();
+            if(mesh!=null)
+                mesh.enabled = false;
+            if (anime != null)
+                anime.enabled = false;
+            Renderer[] childRenders = GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < childRenders.Length; i++)
+            {
+                childRenders[i].enabled = false;
+            }
         }
 
         IEnumerator goPath(List<Vector2> path)
@@ -104,10 +121,20 @@ namespace MemoryTrap
             Map map = MapManager.instance.maps[curLevel];
             Vector2 mapPos = map.location;
             Dictionary<Vector2, EnemyCharactor> curLevelCharactor = GameManager.instance.levelEnemyCharactors[curLevel];
+            //将Animator设置为移动
+            Animator animator = GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.SetBool("Walk", true);
+            }
             //第一个path是自己所在的block
             for (int i = 1; i < path.Count; i++)
             {
                 Vector2 next = path[i];
+                int dx = (int)(next.x - position.x);
+                int dy = (int)(next.y - position.y);
+                transform.rotation = Quaternion.Euler(new Vector3(0, dx * 90 + (dy-1)*90, 0));
+
                 for (int j = 0; j < moveFrame; j++)
                 {
                     float x = Mathf.Lerp(position.x, next.x, j / (float)moveFrame);
@@ -120,6 +147,10 @@ namespace MemoryTrap
                 position = next;
                 curLevelCharactor.Add(position, this);
                 yield return null;
+            }
+            if (animator != null)
+            {
+                animator.SetBool("Walk", false);
             }
             turnOver = true;
             yield return null;

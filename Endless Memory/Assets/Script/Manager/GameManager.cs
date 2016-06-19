@@ -86,7 +86,7 @@ namespace MemoryTrap
             //开启FOW效果
             fowCamera.gameObject.SetActive(true);
             Camera.main.GetComponent<FX.FXFOW>().enabled = true;
-            Camera.main.GetComponent<CameraMapWatch>().RefreshCameraRect();
+            Camera.main.GetComponent<CameraMapWatch>().enabled = false;
 
             //生成道具dictionary
             CreateItemDictionary();
@@ -105,9 +105,13 @@ namespace MemoryTrap
             PlaceNPC();
             mainCharactor.gameObject.SetActive(true);
 
+            
+            //刷新Camera
+            Camera.main.GetComponent<CameraMapWatch>().enabled = true;
+            Camera.main.GetComponent<CameraMapWatch>().RefreshCameraRect();
+
             //刷新可见物品
             OnBlockSightChange(curLevel);
-
             //关闭loading
             UIManager.instance.DisableLoading();
             //开始游戏循环
@@ -228,10 +232,9 @@ namespace MemoryTrap
                             eobj.transform.parent = transform;
                             levelEnemyCharactors[i][(Vector2)floor] = eobj.GetComponent<EnemyCharactor>();
                             enemyCharactors.Add(eobj.GetComponent<EnemyCharactor>());
-                            if(i != 0)
-                            {
-                                eobj.SetActive(false);
-                            }
+                            
+                            eobj.SetActive(false);
+                            
                         }
                     }
                     yield return null;
@@ -276,23 +279,44 @@ namespace MemoryTrap
             npc1.gameObject.SetActive(true);
         }
 
+        public void OnAreaChange(int level)
+        {
+            Map map = MapManager.instance.maps[level];
+            curLevel = mainCharactor.curLevel;
+            RectI area = map.curArea;
+            Dictionary<Vector2, EnemyCharactor> curLevelEnemys = levelEnemyCharactors[level];
+            foreach(Vector2 pos in curLevelEnemys.Keys)
+            {
+                if (!area.InSide((int)pos.x, (int)pos.y))
+                {
+                    curLevelEnemys[pos].gameObject.SetActive(false);
+                }else
+                {
+                    curLevelEnemys[pos].gameObject.SetActive(true);
+                }
+            }
+        }
+
         public void OnBlockSightChange(int level)
         {
-            Update();
+            //Update();
             Map map = MapManager.instance.maps[curLevel];
             RectI area = map.curArea;
             Dictionary<Vector2, ItemPack> curPacks = levelItemPacks[curLevel];
-            for(int x = area.left; x <= area.right; x++)
+            if (area != null)
             {
-                for(int y = area.top; y <= area.bottom; y++)
+                for (int x = area.left; x <= area.right; x++)
                 {
-                    if (map.map[x, y].inSight)
+                    for (int y = area.top; y <= area.bottom; y++)
                     {
-                        Vector2 pos = new Vector2(x, y);
-                        if (curPacks.ContainsKey(pos))
+                        if (map.map[x, y].inSight)
                         {
-                            curPacks[pos].item.inSight = true;
-                            curPacks[pos].item.gameObject.GetComponent<ItemHolder>().SetPos(new Vector2I(x, y), curLevel);
+                            Vector2 pos = new Vector2(x, y);
+                            if (curPacks.ContainsKey(pos))
+                            {
+                                curPacks[pos].item.inSight = true;
+                                curPacks[pos].item.gameObject.GetComponent<ItemHolder>().SetPos(new Vector2I(x, y), curLevel);
+                            }
                         }
                     }
                 }
@@ -302,7 +326,7 @@ namespace MemoryTrap
         // Update is called once per frame
         void Update()
         {
-            if(curLevel != mainCharactor.curLevel)
+            /*if(curLevel != mainCharactor.curLevel)
             {
                 //唤醒所有这一层的怪物
                 //disable上一层的怪物
@@ -315,7 +339,7 @@ namespace MemoryTrap
                     enemy.gameObject.SetActive(true);
                 }
                 curLevel = mainCharactor.curLevel;
-            }
+            }*/
         }
     }
 }

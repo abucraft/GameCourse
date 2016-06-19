@@ -113,6 +113,7 @@ namespace MemoryTrap
             if (itemDic.ContainsKey(position))
             {
                 ItemPack itmPack = itemDic[position];
+                UIManager.instance.CreateCollectionHint((string)itmPack.item.info["name"] + " X " + itmPack.count.ToString());
                 //遍历物品栏查看是否已存在这个物品
                 bool contain = false;
                 for (int i = 0; i < items.Length; i++)
@@ -185,6 +186,33 @@ namespace MemoryTrap
                                     }
                                     EnterIdle(false);
                                 });
+                                return;
+                            }
+                            //如果选中的是Enemy
+                            if (hits[0].collider.GetComponent<EnemyCharactor>() != null)
+                            {
+                                state = State.animating;
+                                EnemyCharactor enemy = hits[0].collider.GetComponent<EnemyCharactor>();
+                                if (!IsNearBy(enemy.position))
+                                {
+                                    string[] options = new string[1];
+                                    options[0] = StringResource.cancel;
+                                    UIManager.instance.CreateInfomationDlg(enemy, options, (int idx) =>
+                                      {
+                                          EnterIdle(false);
+                                      });
+                                }
+                                else
+                                {
+                                    //在附近可以选择开战
+                                    string[] options = new string[2];
+                                    options[0] = StringResource.fight;
+                                    options[1] = StringResource.cancel;
+                                    UIManager.instance.CreateInfomationDlg(enemy, options, (int idx) =>
+                                      {
+                                          EnterIdle(false);
+                                      });
+                                }
                                 return;
                             }
                             //如果选中的是地图块

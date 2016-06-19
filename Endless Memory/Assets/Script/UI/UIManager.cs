@@ -12,9 +12,12 @@ namespace MemoryTrap
         public UI.ItemDialog itemDlg;
         public UI.ConversationDialog convDlgL;
         public UI.ConversationDialog convDlgR;
+        public UI.InfomationDialog infomationDlg;
         public GameObject itemView;
         public GameObject bagBtn;
         public GameObject turnOverBtn;
+
+        public UI.CollectionHint collectionHint;
 
         public UI.HealthBar hpBar;
 
@@ -90,6 +93,28 @@ namespace MemoryTrap
             dlg.GetComponent<RectTransform>().localPosition = position;
             dlg.GetComponent<UI.ConversationDialog>().Init(descript, options, cbk);
             return dlg.GetComponent<UI.ConversationDialog>();
+        }
+
+        public void CreateInfomationDlg(EnemyCharactor enemy, string[] options, UI.InfomationDialog.CallBack cbk)
+        {
+            GameObject dlgCanvas = Instantiate<GameObject>(infomationDlg.gameObject.transform.parent.gameObject);
+            dlgCanvas.SetActive(true);
+            dlgCanvas.GetComponent<RectTransform>().SetParent(transform, false);
+            Rect cvsrct = dlgCanvas.GetComponent<RectTransform>().rect;
+            //Debug.Log(cvsrct);
+            GameObject dlg = dlgCanvas.GetComponentInChildren<UI.InfomationDialog>().gameObject;
+            dlg.GetComponent<RectTransform>().SetParent(dlgCanvas.GetComponent<RectTransform>(), false);
+            //dlg.GetComponent<RectTransform>().localPosition = new Vector3(Screen.width / 2, Screen.height / 2);
+            dlg.GetComponent<UI.InfomationDialog>().Init(enemy, options, cbk);
+
+        }
+
+        public void CreateCollectionHint(string hint)
+        {
+            GameObject hintText = Instantiate<GameObject>(collectionHint.gameObject);
+            hintText.GetComponent<RectTransform>().SetParent(transform, false);
+            hintText.GetComponent<UI.CollectionHint>().Init(hint);
+            hintText.SetActive(true);
         }
     }
 }
