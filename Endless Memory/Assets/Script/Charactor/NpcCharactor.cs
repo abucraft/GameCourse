@@ -3,6 +3,18 @@ using System.Collections.Generic;
 using System.Collections;
 namespace MemoryTrap
 {
+    [System.Serializable]
+    public class Conversation
+    {
+        public string word;
+        public enum From
+        {
+            main,
+            npc
+        }
+        public From from;
+    }
+
     public class NpcCharactor : TurnBaseCharactor
     {
         public enum State
@@ -16,8 +28,8 @@ namespace MemoryTrap
         public int totalFreshCount = 10;
         private int curFreshCount;
 
-        public string[] firstTalk;
-        public string[] secondTalk;
+        public Conversation[] firstTalk;
+        public Conversation[] secondTalk;
 
 
         public void OpenConversation(MainCharactor main)
@@ -34,16 +46,25 @@ namespace MemoryTrap
 
         public IEnumerator ShowFirstTalk(MainCharactor main)
         {
-            Vector3 dialogPos = new Vector3(transform.position.x + 1, transform.position.y, transform.position.z + 3);
-            UI.ConversationDialog dlg = UIManager.instance.CreateConversationDlg(Camera.main.WorldToScreenPoint(dialogPos), "".ToString(), null, null);
+            
             for (int i = 0; i < firstTalk.Length; i++)
             {
-                string word = firstTalk[i];
-                
-                
-                for(int j = 1; j < word.Length; j++)
+                Conversation word = firstTalk[i];
+                Vector3 dialogPos;
+                UI.ConversationDialog dlg;
+                if (word.from == Conversation.From.npc)
                 {
-                    dlg.discription.text = word.Substring(0, j);
+                    dialogPos = new Vector3(transform.position.x + 2, transform.position.y, transform.position.z + 3);
+                    dlg = UIManager.instance.CreateConversationDlgR(Camera.main.WorldToScreenPoint(dialogPos), "", null, null);
+                }
+                else
+                {
+                    dialogPos = new Vector3(main.transform.position.x - 3, transform.position.y, transform.position.z + 3);
+                    dlg = UIManager.instance.CreateConversationDlgL(Camera.main.WorldToScreenPoint(dialogPos), "", null, null);
+                }
+                for (int j = 1; j < word.word.Length; j++)
+                {
+                    dlg.discription.text = word.word.Substring(0, j);
                     if (Input.GetMouseButtonUp(0))
                     {
                         yield return null;
@@ -51,18 +72,18 @@ namespace MemoryTrap
                     }
                     yield return null;
                 }
-                dlg.discription.text = word;
+                dlg.discription.text = word.word;
                 while (!Input.GetMouseButtonUp(0))
                 {
                     yield return null;
                 }
                 yield return null;
-                
+                Destroy(dlg.transform.parent.gameObject);
             }
             state = State.talked;
             main.EndConversation();
 
-            Destroy(dlg.transform.parent.gameObject);
+            
             yield return null;
 
         }
@@ -70,19 +91,30 @@ namespace MemoryTrap
         public IEnumerator ShowSecondTalk(MainCharactor main)
         {
             int idx = Random.Range(0, secondTalk.Length);
-            string word = secondTalk[idx];
-            Vector3 dialogPos = new Vector3(transform.position.x + 1, transform.position.y, transform.position.z + 3);
-            UI.ConversationDialog dlg = UIManager.instance.CreateConversationDlg(Camera.main.WorldToScreenPoint(dialogPos), word[0].ToString(), null, null);
-            for (int j = 1; j < word.Length; j++)
+            Conversation word = secondTalk[idx];
+            Vector3 dialogPos;
+            UI.ConversationDialog dlg;
+            if (word.from == Conversation.From.npc)
             {
-                dlg.discription.text = word.Substring(0, j);
+                dialogPos = new Vector3(transform.position.x + 2, transform.position.y, transform.position.z + 3);
+                dlg = UIManager.instance.CreateConversationDlgR(Camera.main.WorldToScreenPoint(dialogPos), "", null, null);
+            }
+            else
+            {
+                dialogPos = new Vector3(main.transform.position.x - 3, transform.position.y, transform.position.z + 3);
+                dlg = UIManager.instance.CreateConversationDlgL(Camera.main.WorldToScreenPoint(dialogPos), "", null, null);
+            }
+            
+            for (int j = 1; j < word.word.Length; j++)
+            {
+                dlg.discription.text = word.word.Substring(0, j);
                 if (Input.GetMouseButtonDown(0))
                 {
                     break;
                 }
                 yield return null;
             }
-            dlg.discription.text = word;
+            dlg.discription.text = word.word;
             while (!Input.GetMouseButtonDown(0))
             {
                 yield return null;

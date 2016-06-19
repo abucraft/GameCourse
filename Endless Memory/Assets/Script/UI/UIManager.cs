@@ -10,7 +10,8 @@ namespace MemoryTrap
         //public GameObject blockCanvas;
         public UI.SelectDialog selectDlg;
         public UI.ItemDialog itemDlg;
-        public UI.ConversationDialog convDlg;
+        public UI.ConversationDialog convDlgL;
+        public UI.ConversationDialog convDlgR;
         public GameObject itemView;
         public GameObject bagBtn;
         public GameObject turnOverBtn;
@@ -67,9 +68,21 @@ namespace MemoryTrap
 
         }
 
-        public UI.ConversationDialog CreateConversationDlg(Vector3 position,string descript,string[] options,UI.ConversationDialog.CallBack cbk)
+        public UI.ConversationDialog CreateConversationDlgL(Vector3 position,string descript,string[] options,UI.ConversationDialog.CallBack cbk)
         {
-            GameObject dlgCanvas = Instantiate<GameObject>(convDlg.gameObject.transform.parent.gameObject);
+            GameObject dlgCanvas = Instantiate<GameObject>(convDlgL.gameObject.transform.parent.gameObject);
+            dlgCanvas.SetActive(true);
+            dlgCanvas.GetComponent<RectTransform>().parent = GetComponent<RectTransform>();
+            GameObject dlg = dlgCanvas.GetComponentInChildren<UI.ConversationDialog>().gameObject;
+            dlg.GetComponent<RectTransform>().parent = dlgCanvas.GetComponent<RectTransform>();
+            dlg.GetComponent<RectTransform>().localPosition = position;
+            dlg.GetComponent<UI.ConversationDialog>().Init(descript, options, cbk);
+            return dlg.GetComponent<UI.ConversationDialog>();
+        }
+
+        public UI.ConversationDialog CreateConversationDlgR(Vector3 position, string descript, string[] options, UI.ConversationDialog.CallBack cbk)
+        {
+            GameObject dlgCanvas = Instantiate<GameObject>(convDlgR.gameObject.transform.parent.gameObject);
             dlgCanvas.SetActive(true);
             dlgCanvas.GetComponent<RectTransform>().parent = GetComponent<RectTransform>();
             GameObject dlg = dlgCanvas.GetComponentInChildren<UI.ConversationDialog>().gameObject;
