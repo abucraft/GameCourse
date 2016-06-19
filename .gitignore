@@ -237,3 +237,8 @@ pip-log.txt
 *.tga
 *.csproj
 Endless Memory/Assets/RAIN/
+*.mat
+*.prefab
+*.anim
+*.ttf
+*.controller

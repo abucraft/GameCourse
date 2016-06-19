@@ -145,6 +145,7 @@ namespace MemoryTrap
         {
             MapGenerator generator = new MapGenerator();
             maps[level].map = new MapBlock[width, length];
+            maps[level].blocksInSight = new bool[width, length];
             //初始化生成器
             generator.maxRoadLength = maxRoadLength;
             generator.maxRoadSize = maxRoadSize;
@@ -276,10 +277,7 @@ namespace MemoryTrap
         //返回对应位置地图块
         public Vector2I getMapBlockPos(Vector3 loc,int level)
         {
-            if(level != (int)loc.y)
-            {
-                return null;
-            }
+            
             Vector2 pos = new Vector2(loc.x, loc.z);
             Map map = maps[level];
             pos -= map.location;
@@ -327,6 +325,7 @@ namespace MemoryTrap
         {
             maps[level].RefreshBlockVisibility();
             maps[level].UpdateBlockState(charactor, sight);
+            GameManager.instance.OnBlockSightChange(level);
         }
 
 
@@ -342,6 +341,26 @@ namespace MemoryTrap
             rct.y -= mapLoc.y;
             RectI dst = new RectI((int)rct.x, (int)rct.y, (int)rct.width, (int)rct.height);
             maps[level].ShowArea(dst);
+        }
+
+        //go up stair
+        public void SwitchUp(int frameCount)
+        {
+            Map low = maps[curLevel];
+            Map up = maps[curLevel + 1];
+            curLevel++;
+            StartCoroutine(low.FadeOut(frameCount));
+            StartCoroutine(up.FadeIn(frameCount));
+        }
+
+        //go down stair
+        public void SwitchDown(int frameCount)
+        {
+            Map low = maps[curLevel - 1];
+            Map up = maps[curLevel];
+            curLevel--;
+            StartCoroutine(low.FadeIn(frameCount));
+            StartCoroutine(up.FadeOut(frameCount));
         }
         /*public void LoadMap(int level)
         {

@@ -145,6 +145,10 @@ Material:
         first:
           name: _Bloom
         second: 2
+      data:
+        first:
+          name: _BlendExponent
+        second: 1
     m_Colors:
       data:
         first:
