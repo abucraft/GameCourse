@@ -8,7 +8,7 @@ namespace UnityStandardAssets.ImageEffects
     public class AntialiasingEditor : Editor
     {
         private SerializedObject serObj;
-
+ 
         private SerializedProperty mode;
 
         private SerializedProperty showGeneratedNormals;

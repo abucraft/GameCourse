@@ -5,8 +5,10 @@ using RAIN.Action;
 using RAIN.Core;
 
 [RAINAction]
-public class CheckDistance : RAINAction
+public class SlimeAttack : RAINAction
 {
+    public GameObject attack;
+
     public override void Start(RAIN.Core.AI ai)
     {
         base.Start(ai);
@@ -15,15 +17,12 @@ public class CheckDistance : RAINAction
     public override ActionResult Execute(RAIN.Core.AI ai)
     {
         GameObject player = ai.WorkingMemory.GetItem<GameObject>("playerGet");
+        
         if(player != null)
         {
-            float dis = Vector3.Distance(player.transform.position, ai.Body.transform.position);
-            if (dis <= 4)
-                ai.WorkingMemory.SetItem<bool>("Attackable", true);
-            else
-            {
-                ai.WorkingMemory.SetItem<bool>("Attackable", false);
-            }
+            Debug.Log(player);
+            Vector3 pos = ai.Body.transform.position;
+            GameObject.Find("ParticleManager").GetComponent<ParticleManager>().emitSlimeParticle(pos, player.transform.position);
         }
         return ActionResult.SUCCESS;
     }
