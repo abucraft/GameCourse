@@ -4,6 +4,7 @@
 	{
 		_MainTex("Texture", 2D) = "" {}
 	_BlendTex("BlendTex (RGB)",2D) = "black" {}
+	_BlendExponent("Blend Exponent",Range(0,1)) = 1
 	}
 		CGINCLUDE
 
@@ -20,6 +21,7 @@
 
 	sampler2D _MainTex;
 	sampler2D _BlendTex;
+	float _BlendExponent;
 	half4 _BlendTex_TexelSize;
 	half4 _MainTex_TexelSize;
 	v2f vert(appdata_img v)
@@ -41,6 +43,13 @@
 		// sample the texture
 		half4 mainColor = tex2D(_MainTex, i.uv[0]);
 		half4 blendColor = tex2D(_BlendTex, i.uv[1]);
+		blendColor += (1-_BlendExponent)*half4(1, 1, 1, 1);
+		if (blendColor.r > 1)
+			blendColor.r = 1;
+		if (blendColor.g > 1)
+			blendColor.g = 1;
+		if (blendColor.b > 1)
+			blendColor.b = 1;
 		half4 finalColor = blendColor*mainColor;
 		return finalColor;
 	}

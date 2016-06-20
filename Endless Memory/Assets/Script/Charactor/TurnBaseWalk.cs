@@ -14,14 +14,15 @@ namespace MemoryTrap
             return MapManager.instance.maps[curLevel];
         }
 
-        public Dictionary<Vector2,TurnBaseCharactor> getLocationCharactor()
+        public Dictionary<Vector2,EnemyCharactor> getLocationCharactor()
         {
             //从单例中直接获取变量
-            return GameManager.instance.levelLocationCharactors[curLevel];
+            //Debug.Log(GameManager.instance.curState);
+            return GameManager.instance.levelEnemyCharactors[curLevel];
         }
 
         protected Dictionary<Vector2, Vector2> reachableArea;
-        public List<Vector2> reachableCharator;
+        public List<Vector2> reachableCharator = new List<Vector2>();
 
         public bool reachableMapBlock(Vector2 pos, Map map)
         {
@@ -43,17 +44,7 @@ namespace MemoryTrap
         public abstract Dictionary<Vector2, Vector2> getReachableArea(Vector2 startPos, int step);
         //get the path to a position
         public abstract List<Vector2> getPathTo(Vector2 startPos, Vector2 endPos);
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
+        
     }
     
     public class TurnMainWalk : TurnBaseWalk
@@ -69,7 +60,7 @@ namespace MemoryTrap
             tmp.Add(startPos, startPos);
 
             Map map = getMap();
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = getLocationCharactor();
+            Dictionary<Vector2, EnemyCharactor> locationCharactor = getLocationCharactor();
 
             while (bfs.Count != 0)
             {
@@ -78,7 +69,7 @@ namespace MemoryTrap
                 int stepNow = now.Value;
                 int x = (int)posNow.x;
                 int y = (int)posNow.y;
-                MapBlock mapBlock = map.map[x, y];
+                //MapBlock mapBlock = map.map[x, y];
                 int[] next = { 1, -1, 0 };
                 if (stepNow < step)
                 {
@@ -150,7 +141,7 @@ namespace MemoryTrap
             tmp.Add(startPos, startPos);
 
             Map map = getMap();
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = getLocationCharactor();
+            Dictionary<Vector2, EnemyCharactor> locationCharactor = getLocationCharactor();
 
             while (bfs.Count != 0)
             {
@@ -159,7 +150,7 @@ namespace MemoryTrap
                 int stepNow = now.Value;
                 int x = (int)posNow.x;
                 int y = (int)posNow.y;
-                MapBlock mapBlock = map.map[x, y];
+                //MapBlock mapBlock = map.map[x, y];
                 int[] next = { 1, -1, 0 };
                 if (stepNow < step)
                 {
@@ -202,7 +193,7 @@ namespace MemoryTrap
         {
             // A*算法
             Map map = getMap();
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = getLocationCharactor();
+            Dictionary<Vector2, EnemyCharactor> locationCharactor = getLocationCharactor();
 
             HashSet<Vector2> close = new HashSet<Vector2>();
             Dictionary<Vector2, int> open = new Dictionary<Vector2, int>();

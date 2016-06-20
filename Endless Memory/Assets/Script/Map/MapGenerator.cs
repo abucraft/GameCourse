@@ -25,6 +25,7 @@ namespace MemoryTrap
         public int minRoadLength;
         public int maxRoadLength;
         public int maxRoadSize;
+        public int maxJudgeTime = 5;
         public int seed;
 
 
@@ -62,7 +63,7 @@ namespace MemoryTrap
                 if (fArea != null)
                 {
                     MakeRoom(fArea);
-                    areaQue.Enqueue(new UsefulArea(fArea, 5, "room"));
+                    areaQue.Enqueue(new UsefulArea(fArea, maxJudgeTime, "room"));
                     break;
                 }
                 initTimes--;
@@ -84,7 +85,7 @@ namespace MemoryTrap
                         nArea = AddRoad(curArea);
                         if (nArea != null)
                         {
-                            UsefulArea nuArea = new UsefulArea(nArea, 5, "road");
+                            UsefulArea nuArea = new UsefulArea(nArea, maxJudgeTime, "road");
                             areaQue.Enqueue(nuArea);
                         }
                         //timeCount--;
@@ -93,14 +94,14 @@ namespace MemoryTrap
                         nArea = AddRoom(curArea);
                         if (nArea != null)
                         {
-                            UsefulArea nuArea = new UsefulArea(nArea, 5, "room");
+                            UsefulArea nuArea = new UsefulArea(nArea, maxJudgeTime, "room");
                             areaQue.Enqueue(nuArea);
                         }
                         //timeCount--;
                         break;
                 }
                 curArea.judgeTimes--;
-                if (curArea.judgeTimes != 0)
+                if (curArea.judgeTimes >= 0)
                 {
                     areaQue.Enqueue(curArea);
                 }
@@ -392,9 +393,9 @@ namespace MemoryTrap
         bool putDoorBlk(Vector2I doorPlc,int dltX,int dltY)
         {
             if (map.map[ doorPlc.x - dltX, doorPlc.y - dltY]!=null 
-                && (map.map[doorPlc.x - dltX, doorPlc.y - dltY].type == MapBlock.Type.wall || map.map[doorPlc.x - dltX, doorPlc.y - dltY].type == MapBlock.Type.wallCorner)
+                && (map.map[doorPlc.x - dltX, doorPlc.y - dltY].type == MapBlock.Type.wall )
                 && map.map[doorPlc.x + dltX, doorPlc.y + dltY] != null
-                 && (map.map[doorPlc.x + dltX, doorPlc.y + dltY].type == MapBlock.Type.wall || map.map[doorPlc.x + dltX, doorPlc.y + dltY].type == MapBlock.Type.wallCorner))
+                 && (map.map[doorPlc.x + dltX, doorPlc.y + dltY].type == MapBlock.Type.wall ))
             {
                 MapBlock oldBlock = map.map[doorPlc.x, doorPlc.y];
                 MapBlock.Dir dir = oldBlock.direction;

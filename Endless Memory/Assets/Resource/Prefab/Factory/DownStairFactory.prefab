@@ -45,7 +45,7 @@ MonoBehaviour:
     - normal
     values:
     - objects:
-      - {fileID: 172558, guid: 2a595f4368d37454a82a7b63b27c7fdb, type: 2}
+      - {fileID: 147234, guid: 9c50b228792f40f4d9532ebe76f7a86c, type: 2}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

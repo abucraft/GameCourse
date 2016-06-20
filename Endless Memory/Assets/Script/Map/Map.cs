@@ -93,10 +93,11 @@ namespace MemoryTrap
     {
         protected Vector2 _location = new Vector2(0,0);
         public MapBlock[,] map;
+        public bool[,] blocksInSight;
         public int level = 0;
         public string style = "normal";
         public List<RectI> roomList = new List<RectI>();
-        RectI curArea;
+        public RectI curArea;
         public void Start()
         {
             
@@ -211,6 +212,7 @@ namespace MemoryTrap
             }
             List<Node> colNode = (List<Node>)node["map"];
             map = new MapBlock[colNode.Count, ((List<Node>)colNode[0]).Count];
+            blocksInSight = new bool[colNode.Count, ((List<Node>)colNode[0]).Count];
             for(int x = 0;x< colNode.Count; x++)
             {
                 List<Node> rowNode = (List<Node>)colNode[x];
@@ -301,29 +303,111 @@ namespace MemoryTrap
             }
         }
 
-        public IEnumerator ZoomIn(int frames)
+        public IEnumerator FadeIn(int frames)
+        {
+            for (int x = curArea.left; x < curArea.right; x++)
+            {
+                for (int y = curArea.top; y < curArea.bottom; y++)
+                {
+                    MeshRenderer[] renders = map[x, y].gameObject.GetComponentsInChildren<MeshRenderer>();
+                    for (int idx = 0; idx < renders.Length; idx++)
+                    {
+                        renders[idx].material.shader = Shader.Find("Standard");
+                        Material m = renders[idx].material;
+                        m.SetFloat("_Mode", 2);
+                        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                        m.SetInt("_ZWrite", 0);
+                        m.DisableKeyword("_ALPHATEST_ON");
+                        m.EnableKeyword("_ALPHABLEND_ON");
+                        m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                        m.renderQueue = 3000;
+                    }
+                }
+            }
+            for (int i = 0; i <= frames; i++)
+            {
+                for(int x = curArea.left; x < curArea.right; x++)
+                {
+                    for(int y = curArea.top; y < curArea.bottom; y++)
+                    {
+                        MeshRenderer[] renders = map[x, y].gameObject.GetComponentsInChildren<MeshRenderer>();
+                        for(int idx = 0; idx < renders.Length; idx++)
+                        {
+                            
+                            Color color = renders[idx].material.color;
+                            color.a = i / (float)frames;
+                            renders[idx].material.color = color;
+                        }
+                    }
+                }
+                yield return null;
+            }
+            for (int x = curArea.left; x < curArea.right; x++)
+            {
+                for (int y = curArea.top; y < curArea.bottom; y++)
+                {
+                    map[x, y].ChangeVisibility();
+                }
+            }
+        }
+
+
+        public IEnumerator FadeOut(int frames)
+        {
+            for (int x = curArea.left; x < curArea.right; x++)
+            {
+                for (int y = curArea.top; y < curArea.bottom; y++)
+                {
+                    MeshRenderer[] renders = map[x, y].gameObject.GetComponentsInChildren<MeshRenderer>();
+                    for (int idx = 0; idx < renders.Length; idx++)
+                    {
+                        renders[idx].material.shader = Shader.Find("Standard");
+                        Material m = renders[idx].material;
+                        m.SetFloat("_Mode", 2);
+                        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                        m.SetInt("_ZWrite", 0);
+                        m.DisableKeyword("_ALPHATEST_ON");
+                        m.EnableKeyword("_ALPHABLEND_ON");
+                        m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                        m.renderQueue = 3000;
+                    }
+                }
+            }
+            for (int i = 0; i <= frames; i++)
+            {
+                for (int x = curArea.left; x < curArea.right; x++)
+                {
+                    for (int y = curArea.top; y < curArea.bottom; y++)
+                    {
+                        MeshRenderer[] renders = map[x, y].gameObject.GetComponentsInChildren<MeshRenderer>();
+                        for (int idx = 0; idx < renders.Length; idx++)
+                        {
+
+                            Color color = renders[idx].material.color;
+                            color.a = (frames-i) / (float)frames;
+                            renders[idx].material.color = color;
+                        }
+                    }
+                }
+                yield return null;
+            }
+            ShowArea(new RectI(0, 0, 0, 0));
+        }
+
+        public IEnumerator FadeIn(float time)
         {
             yield return null;
         }
 
 
-        public IEnumerator ZoomOut(int frames)
+        public IEnumerator FadeOut(float time)
         {
             yield return null;
         }
 
-        public IEnumerator ZoomIn(float time)
-        {
-            yield return null;
-        }
-
-
-        public IEnumerator ZoomOut(float time)
-        {
-            yield return null;
-        }
-
-        public void ShowArea(RectI area)
+        public bool ShowArea(RectI area)
         {
             if (area.left < 0)
             {
@@ -346,7 +430,7 @@ namespace MemoryTrap
                 //两块区域相同，可以跳过
                 if (curArea.Equals(area))
                 {
-                    return;
+                    return false;
                 }
                 for(int x = curArea.left; x <= curArea.right; x++)
                 {
@@ -372,6 +456,7 @@ namespace MemoryTrap
                 }
             }
             curArea = area;
+            return true;
             //Debug.Log("show area" + Time.frameCount);
         }
 
@@ -384,6 +469,7 @@ namespace MemoryTrap
                     for (int y = curArea.top; y <= curArea.bottom; y++)
                     {
                         map[x, y].inSight = false;
+                        blocksInSight[x, y] = false;
                     }
                 }
             }
@@ -411,6 +497,7 @@ namespace MemoryTrap
                         {
                             map[x, y].inSight = true;
                             map[x, y].visited = true;
+                            blocksInSight[x, y] = true;
                         }
                     }
                 }

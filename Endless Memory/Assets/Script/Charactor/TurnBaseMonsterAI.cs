@@ -5,7 +5,7 @@ using System;
 
 namespace MemoryTrap
 {
-    public abstract class TurnBaseMonsterAI : MonoBehaviour
+    public abstract class TurnBaseMonsterAI
     {
         // Use this for initialization
         //void Start () {
@@ -66,7 +66,7 @@ namespace MemoryTrap
                 return new DefenseAI();
 
             // 检查附近是否有同伴
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactor = GameManager.instance.levelLocationCharactors[self.curLevel];
+            Dictionary<Vector2, EnemyCharactor> locationCharactor = GameManager.instance.levelEnemyCharactors[self.curLevel];
             self.walk.getReachableArea(self.position, self.step);
             if (self.walk.reachableCharator.Count != 0)
             {
@@ -146,7 +146,7 @@ namespace MemoryTrap
             forwardPath = self.walk.getPathTo(self.position, main.position);
             List<Vector2> path = new List<Vector2>();
  
-            for (int i = 0; i < forwardPath.Count; i++)
+            for (int i = 0; i < forwardPath.Count-1; i++)
             {
                 if (i < self.step + 1)
                     path.Add(forwardPath[i]);
@@ -182,7 +182,7 @@ namespace MemoryTrap
                 forwardPath = self.walk.getPathTo(self.position, compaion.position);
             List<Vector2> path = new List<Vector2>();
             
-            for (int i = 0;i<forwardPath.Count;i++)
+            for (int i = 0;i<forwardPath.Count-1;i++)
             {
                 if (i < self.step + 1)
                     path.Add(forwardPath[i]);
@@ -194,7 +194,7 @@ namespace MemoryTrap
         {
             if (self.inBattle) return new EmptyAI();
 
-            Dictionary<Vector2, TurnBaseCharactor> locationCharactors = GameManager.instance.levelLocationCharactors[self.curLevel];
+            Dictionary<Vector2, EnemyCharactor> locationCharactors = GameManager.instance.levelEnemyCharactors[self.curLevel];
             // 检视四周是否已经有charactor，有的话
             // 如果charactor已经停止行动，变为EmptyAI
             // 如果charactor未停止行动

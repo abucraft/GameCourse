@@ -93,6 +93,10 @@ Material:
         second: 0.5
       data:
         first:
+          name: _Shininess
+        second: 0.078125
+      data:
+        first:
           name: _Parallax
         second: 0.02
       data:
@@ -102,7 +106,7 @@ Material:
       data:
         first:
           name: _Glossiness
-        second: 0.5
+        second: 0.575
       data:
         first:
           name: _BumpScale
@@ -127,6 +131,10 @@ Material:
         first:
           name: _Metallic
         second: 0
+      data:
+        first:
+          name: _ShadowIntensity
+        second: 0.6
     m_Colors:
       data:
         first:
@@ -136,3 +144,7 @@ Material:
         first:
           name: _Color
         second: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+      data:
+        first:
+          name: _SpecColor
+        second: {r: 0.5, g: 0.5, b: 0.5, a: 0}

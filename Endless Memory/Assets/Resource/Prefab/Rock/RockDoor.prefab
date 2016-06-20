@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 422952}
-  - 95: {fileID: 9561852}
+  - 95: {fileID: 9563536}
   m_Layer: 0
   m_Name: RockDoor
   m_TagString: Untagged
@@ -208,7 +208,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.8665495, y: 2.0595465, z: 0.198574}
   m_Center: {x: 0.03694859, y: 1.0484908, z: 0.4805012}
---- !u!95 &9561852
+--- !u!95 &9563536
 Animator:
   serializedVersion: 3
   m_ObjectHideFlags: 1
@@ -217,7 +217,7 @@ Animator:
   m_GameObject: {fileID: 144344}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 46979d7ad1077364b9305f59426062b5, type: 2}
+  m_Controller: {fileID: 9100000, guid: b52be1da3bb59df41b53779136b62763, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

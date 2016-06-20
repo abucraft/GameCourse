@@ -17,11 +17,20 @@ namespace MemoryTrap
             {
                 return opened;
             }
+            set
+            {
+                if (opened != value)
+                {
+                    opened = value;
+                    if (gameObject != null)
+                    {
+                        Animator anime = gameObject.GetComponent<Animator>();
+                        anime.SetBool("opened",opened);
+                    }
+                }
+            }
         }
-
-        public virtual void Open() {
-            opened = true;
-        }
+        
 
 
         public override void CreateObject(Vector2 pos, Transform parent)
@@ -39,6 +48,7 @@ namespace MemoryTrap
                     gameObject = factory.getObject(style);
                     gameObject.transform.parent = parent;
                     gameObject.transform.localPosition = new Vector3(pos.x, 0, pos.y);
+                    gameObject.GetComponent<Animator>().SetBool("opened", opened);
                 }
             }
         }
