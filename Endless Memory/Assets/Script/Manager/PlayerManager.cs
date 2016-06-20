@@ -16,12 +16,14 @@ namespace MemoryTrap
         }
 
         public float velocity;
+        public GameObject attackRange;
 
         private Vector3 targetPoint;
         private PlayerState currState;
         private Transform mainCameraTransform;
         private Rigidbody _rigidbody;
         public Camera mainCamera;
+        public int damage = 20;
 
         private int isWalking = 0;
         private bool isAttacking = false;
@@ -56,6 +58,8 @@ namespace MemoryTrap
                 if (attackCount == 22)
                 {
                     currState = PlayerState.AttackOver;
+                    GameObject ar = Instantiate(attackRange, transform.position, Quaternion.Euler(transform.forward)) as GameObject;
+                    ar.GetComponent<AttackTrigger>().SetDamage(damage);
                     attackCount++;
                 }
                 else if (attackCount < attackFrame)
@@ -100,10 +104,18 @@ namespace MemoryTrap
            // _rigidbody.velocity = transform.forward * velocity * isWalking;
         }
 
+        void Hited(int hitPoint)
+        {
+            animator.Play("Damage", -1, 0f);
+            DecreaseHp(hitPoint);
+        }
+
         void OnTriggerEnter(Collider other)
         {
             if(other.CompareTag("Monster"))
                 enemyList.Add(other.gameObject);
+            if (other.CompareTag("Bullet"))
+                Hited(other.gameObject.GetComponent<BulletController>().damage);
         }
         void OnTriggerExit(Collider other)
         {
