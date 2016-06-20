@@ -169,8 +169,20 @@ namespace MemoryTrap
                         //根据选中的物体采取行动
                         if (hits.Length > 0)
                         {
+                            //Debug.Log(hits[0].collider.transform.position);
+                            //Debug.Log(hits[0].collider.gameObject.name);
+                            //Debug.Log(hits.Length);
+                            NpcCharactor npc = null;
+                            EnemyCharactor enemy=null;
+                            for(int i = 0; i < hits.Length; i++)
+                            {
+                                if(npc == null)
+                                    npc = hits[i].collider.GetComponent<NpcCharactor>();
+                                if(enemy == null)
+                                    enemy = hits[i].collider.GetComponent<EnemyCharactor>();
+                            }
                             //如果选中的是Npc
-                            if (hits[0].collider.GetComponent<NpcCharactor>() != null)
+                            if (npc != null)
                             {
                                 state = State.animating;
                                 string[] options = new string[2];
@@ -181,7 +193,7 @@ namespace MemoryTrap
                                 {
                                     if (idx == 0)
                                     {
-                                        StartConversation(hits[0].collider.GetComponent<NpcCharactor>());
+                                        StartConversation(npc);
                                         return;
                                     }
                                     EnterIdle(false);
@@ -189,10 +201,9 @@ namespace MemoryTrap
                                 return;
                             }
                             //如果选中的是Enemy
-                            if (hits[0].collider.GetComponent<EnemyCharactor>() != null)
+                            if (enemy != null)
                             {
                                 state = State.animating;
-                                EnemyCharactor enemy = hits[0].collider.GetComponent<EnemyCharactor>();
                                 if (!IsNearBy(enemy.position))
                                 {
                                     string[] options = new string[1];
@@ -566,6 +577,9 @@ namespace MemoryTrap
             //开启地图刷新
             Camera.main.GetComponent<CameraMapWatch>().enabled = true;
 
+            //通知gameManager
+            GameManager.instance.OnLevelChange();
+
             //结束回合
             EndTurn();
             yield return null;
@@ -604,6 +618,23 @@ namespace MemoryTrap
             MapManager.instance.SwitchDown(upDownFrame);
             Map map = MapManager.instance.maps[curLevel];
             Vector2 mapPos = map.location;
+
+            //播放动画
+            Animator animator = GetComponent<Animator>();
+            Animation animation = GetComponent<Animation>();
+            if (animator != null)
+            {
+                animator.SetBool("Walk", true);
+            }
+            if (animation != null)
+            {
+                animation.Play("Walk");
+            }
+
+            //旋转角色角度
+            int rdx = dx;
+            int rdy = dy < 0 ? dy : 1;
+            transform.rotation = Quaternion.Euler(new Vector3(0, dx * 90 + (dy - 1) * 90, 0));
             for (int i = 0; i < upDownFrame; i++)
             {
                 float x = Mathf.Lerp(position.x, position.x + dx, i / (float)upDownFrame);
@@ -619,6 +650,16 @@ namespace MemoryTrap
 
             //开启战争迷雾
             StartCoroutine(Camera.main.GetComponent<FX.FXFOW>().FadeIn(upDownFrame));
+
+            if (animator != null)
+            {
+                animator.SetBool("Walk", false);
+            }
+            if (animation != null)
+            {
+                animation.Play("Wait");
+            }
+
             //移动镜头
             follow.distance = oDistance;
             follow.height = oHeight;
@@ -631,6 +672,8 @@ namespace MemoryTrap
             //开启地图刷新
             Camera.main.GetComponent<CameraMapWatch>().enabled = true;
 
+            //通知gameManager
+            GameManager.instance.OnLevelChange();
             //结束回合
             EndTurn();
             yield return null;
@@ -641,10 +684,25 @@ namespace MemoryTrap
             state = State.animating;
             Map map = MapManager.instance.maps[curLevel];
             Vector2 mapPos = map.location;
+            //播放动画
+            Animator animator = GetComponent<Animator>();
+            Animation animation = GetComponent<Animation>();
+            if (animator != null)
+            {
+                animator.SetBool("Walk", true);
+            }
+            if (animation != null)
+            {
+                animation.Play("Walk");
+            }
+
             //第一个path是自己所在的block
             for (int i = 1; i < path.Count; i++)
             {
                 Vector2 next = path[i];
+                int dx = (int)(next.x - position.x);
+                int dy = (int)(next.y - position.y) < 0 ? (int)(next.y - position.y) : 1;
+                transform.rotation = Quaternion.Euler(new Vector3(0, dx * 90 + (dy - 1) * 90, 0));
                 for (int j = 0; j < moveFrame; j++)
                 {
                     float x = Mathf.Lerp(position.x, next.x, j / (float)moveFrame);
@@ -657,6 +715,15 @@ namespace MemoryTrap
                 availableStep--;
                 yield return null;
             }
+
+            if (animator != null)
+            {
+                animator.SetBool("Walk", false);
+            }
+            if (animation != null)
+            {
+                animation.Play("Wait");
+            }
             //移动结束，进入idle状态,不重置移动点数
             EnterIdle(false);
         }
@@ -666,10 +733,25 @@ namespace MemoryTrap
             state = State.animating;
             Map map = MapManager.instance.maps[curLevel];
             Vector2 mapPos = map.location;
+            //播放动画
+            Animator animator = GetComponent<Animator>();
+            Animation animation = GetComponent<Animation>();
+            if (animator != null)
+            {
+                animator.SetBool("Walk", true);
+            }
+            if (animation != null)
+            {
+                animation.Play("Walk");
+            }
+
             //第一个path是自己所在的block
             for (int i = 1; i < path.Count; i++)
             {
                 Vector2 next = path[i];
+                int dx = (int)(next.x - position.x);
+                int dy = (int)(next.y - position.y) < 0 ? (int)(next.y - position.y) : 1;
+                transform.rotation = Quaternion.Euler(new Vector3(0, dx * 90 + (dy - 1) * 90, 0));
                 for (int j = 0; j < moveFrame; j++)
                 {
                     float x = Mathf.Lerp(position.x, next.x, j / (float)moveFrame);
@@ -681,6 +763,14 @@ namespace MemoryTrap
                 MapManager.instance.UpdateBlockState(position, sight, curLevel);
                 availableStep--;
                 yield return null;
+            }
+            if (animator != null)
+            {
+                animator.SetBool("Walk", false);
+            }
+            if (animation != null)
+            {
+                animation.Play("Wait");
             }
             cbk();
         }

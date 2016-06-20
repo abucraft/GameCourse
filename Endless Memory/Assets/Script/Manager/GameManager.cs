@@ -297,6 +297,19 @@ namespace MemoryTrap
             }
         }
 
+        public void OnLevelChange()
+        {
+            if (curLevel != mainCharactor.curLevel)
+            {
+                //disable上一层的怪物
+                foreach (EnemyCharactor enemy in levelEnemyCharactors[curLevel].Values)
+                {
+                    enemy.gameObject.SetActive(false);
+                }
+                curLevel = mainCharactor.curLevel;
+            }
+        }
+
         public void OnBlockSightChange(int level)
         {
             //Update();

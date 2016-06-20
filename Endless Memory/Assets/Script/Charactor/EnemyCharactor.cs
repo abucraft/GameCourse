@@ -40,6 +40,16 @@ namespace MemoryTrap
             state = State.idle;
         }
 
+        void OnEnable()
+        {
+            DisableRigid();
+        }
+
+        void OnDisable()
+        {
+            EnableRigid();
+        }
+
         void Start()
         {
             curFreshCount = (int)Random.Range(0, totalFreshCount);
@@ -88,6 +98,7 @@ namespace MemoryTrap
         {
             Renderer mesh = GetComponent<Renderer>();
             Animator anime = GetComponent<Animator>();
+            Rigidbody rg = GetComponent<Rigidbody>();
             if(mesh != null)
                 mesh.enabled = true;
             if (anime != null)
@@ -97,6 +108,18 @@ namespace MemoryTrap
             {
                 childRenders[i].enabled = true;
             }
+        }
+
+        public void DisableRigid()
+        {
+            if(GetComponent<Rigidbody>()!=null)
+                GetComponent<Rigidbody>().isKinematic = true;
+        }
+
+        public void EnableRigid()
+        {
+            if(GetComponent<Rigidbody>()!=null)
+                GetComponent<Rigidbody>().isKinematic = false;
         }
 
         public void HideMesh()
@@ -123,16 +146,21 @@ namespace MemoryTrap
             Dictionary<Vector2, EnemyCharactor> curLevelCharactor = GameManager.instance.levelEnemyCharactors[curLevel];
             //将Animator设置为移动
             Animator animator = GetComponent<Animator>();
+            Animation animation = GetComponent<Animation>();
             if (animator != null)
             {
                 animator.SetBool("Walk", true);
+            }
+            if (animation != null)
+            {
+                animation.Play("Walk");
             }
             //第一个path是自己所在的block
             for (int i = 1; i < path.Count; i++)
             {
                 Vector2 next = path[i];
                 int dx = (int)(next.x - position.x);
-                int dy = (int)(next.y - position.y);
+                int dy = (int)(next.y - position.y) < 0 ? (int)(next.y - position.y) : 1;
                 transform.rotation = Quaternion.Euler(new Vector3(0, dx * 90 + (dy-1)*90, 0));
 
                 for (int j = 0; j < moveFrame; j++)
@@ -151,6 +179,10 @@ namespace MemoryTrap
             if (animator != null)
             {
                 animator.SetBool("Walk", false);
+            }
+            if (animation != null)
+            {
+                animation.Play("Wait");
             }
             turnOver = true;
             yield return null;
